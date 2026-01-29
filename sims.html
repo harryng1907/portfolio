@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Harrington Secret Archives</title>
+    <style>
+        /* This hides the content by default */
+        #secret-data {
+            display: none; 
+        }
+        
+        /* Basic styling for the login box */
+        body { font-family: sans-serif; background: #0f172a; color: white; text-align: center; padding: 50px; }
+        #login-box { margin-top: 100px; border: 1px solid #38bdf8; padding: 20px; display: inline-block; border-radius: 10px; }
+        input { padding: 10px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: #38bdf8; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="login-box">
+        <h2>🔒 Restricted Access</h2>
+        <p>Enter the Harrington password:</p>
+        <input type="password" id="pass-input" placeholder="Password...">
+        <button onclick="checkPass()">Unlock</button>
+        <p id="error-msg" style="color: red; display: none;">Wrong password!</p>
+    </div>
+
+    <div id="secret-data">
+        <h1>📜 The Harrington Legacy</h1>
+        <p>Generation 1: Harry Harrington</p>
+        <p>Status: Deceased</p>
+        <p>Net Worth: §500,000</p>
+        
+        <div class="raw-stats">
+            ID: 1907_HARRY
+            TRAITS: Ambitious, Genius
+        </div>
+    </div>
+
+    <script>
+        function checkPass() {
+            var password = document.getElementById("pass-input").value;
+            
+            // Set your password here (Simple Protection)
+            if (password === "sims123") {
+                document.getElementById("login-box").style.display = "none";
+                document.getElementById("secret-data").style.display = "block";
+            } else {
+                document.getElementById("error-msg").style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
