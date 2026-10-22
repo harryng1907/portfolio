@@ -1,0 +1,81 @@
+# License — KazuHarry Editorial Portfolio Template
+
+**Copyright © KazuHarry. All rights reserved.**
+
+This template (the "Template") — including its HTML, CSS, JavaScript, React
+components, configuration files, and documentation — is the intellectual
+property of **KazuHarry** and is licensed, not sold, to you (the "Licensee").
+
+By downloading, purchasing, or using the Template you agree to the terms below.
+
+---
+
+## 1. Standard License
+
+When you obtain the Template through a standard purchase, you may:
+
+- ✅ Use it to build **one** end product (a portfolio/website) for yourself or
+  for a single client.
+- ✅ Customize the content, colours, fonts, and layout freely.
+- ✅ Deploy the end product on any hosting you like.
+- ✅ Charge a client for the work of building their site with it.
+
+You may **not**:
+
+- ❌ Resell, redistribute, sublicense, or give away the Template itself (the
+  source files), modified or unmodified.
+- ❌ Include the Template in a "template marketplace", theme bundle, page
+  builder, or any product whose primary value is the Template.
+- ❌ Claim authorship of the Template itself.
+
+Under the Standard License, please **keep the small "Template by KazuHarry"
+credit** in the footer (`site.config.js → footer.credit`).
+
+---
+
+## 2. Extended License
+
+If you obtain an Extended License, you additionally may:
+
+- ✅ Use the Template for **multiple** end products / clients.
+- ✅ **Remove the footer credit** (set `footer.credit.show` to `false`).
+
+You still may **not** resell or redistribute the Template as a template.
+
+---
+
+## 3. End Products
+
+An "end product" is a customized website where the Template has been combined
+with your own content. End products may be sold to clients as a finished site.
+The Template's source files may never be resold on their own.
+
+---
+
+## 4. No Warranty
+
+The Template is provided "as is", without warranty of any kind, express or
+implied. KazuHarry is not liable for any damages arising from its use.
+
+---
+
+## 5. Contact
+
+For extended licenses, bulk/agency licensing, or questions:
+
+- **Brand:** KazuHarry
+- **Web:** https://kazuharry.com
+- **Email:** hello@kazuharry.com
+
+_Replace the contact details above with your real store and email before
+shipping._
+
+---
+
+### Third-party assets
+
+This Template loads the following open-source fonts via Google Fonts, each under
+the SIL Open Font License: **Source Serif 4**, **EB Garamond**, **Inter**, and
+**JetBrains Mono**. It also loads **React** and **Babel** (MIT License) from a
+CDN. These remain under their respective licenses and are not covered by this
+license.

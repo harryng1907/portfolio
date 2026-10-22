@@ -1,0 +1,204 @@
+<!doctype html>
+<!--
+  ============================================================================
+  KazuHarry · Editorial Portfolio Template
+  Copyright © KazuHarry. Licensed, not sold — see LICENSE.txt.
+  Customize everything from the *.config.js files. See README.md.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Huy Nguyen — Data Science Portfolio</title>
+<meta name="description" content="Huy Nguyen — Data Science & Decisions student at UNSW Sydney. Machine learning, analytics and marketing." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..900;1,8..60,300..900&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300..800&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg, #fff);
+    color: var(--ink, #0a0a0a);
+    font-family: var(--font-sans, Inter, system-ui, sans-serif);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background-color 240ms ease, color 240ms ease;
+    overflow-x: hidden;
+  }
+  /* keyboard-friendly focus */
+  :focus-visible { outline: 2px solid var(--accent, #4f46e5); outline-offset: 2px; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; cursor: pointer; }
+  /* selection */
+  ::selection { background: var(--accent, #4f46e5); color: var(--bg, #fff); }
+
+  /* base section */
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 56px);
+  }
+
+  /* fade-in for sections */
+  .reveal {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 700ms ease, transform 700ms ease;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* faint, sober background patterns */
+  .bg-pattern {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+  }
+
+  /* root z stack */
+  #root { position: relative; z-index: 1; }
+
+  /* scrollbar discretion */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 18%, transparent); border-radius: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  /* modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: color-mix(in srgb, var(--ink) 60%, transparent);
+    backdrop-filter: blur(6px);
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    animation: fadeIn 180ms ease;
+  }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+
+  /* typing caret */
+  .caret {
+    display: inline-block;
+    width: 0.55ch;
+    height: 0.9em;
+    background: var(--accent, #4f46e5);
+    margin-left: 0.08em;
+    transform: translateY(0.12em);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* hairline */
+  .hair { border: 0; height: 1px; background: var(--line, #e5e5e5); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* =========================================================================
+     RESPONSIVE  —  tablet & mobile only. Desktop layout is untouched.
+     Breakpoints: 900px (tablet) · 640px (phone) · 420px (small phone).
+     These rules override inline component styles with !important on purpose.
+     ========================================================================= */
+
+  /* ---------- Tablet ( ≤ 900px ) ---------- */
+  @media (max-width: 900px) {
+    /* Hero: single column, drop the spinning circle graphic */
+    .hero-grid   { grid-template-columns: 1fr !important; gap: 32px !important; }
+    .hero-circle { display: none !important; }
+    .hero        { padding-top: 96px !important; padding-bottom: 80px !important; }
+
+    /* Two-column content sections collapse to one column */
+    .about-grid  { grid-template-columns: 1fr !important; gap: 36px !important; }
+    .skills-row  { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .exp-row,
+    .edu-grid    { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+    /* Project cards: asymmetric mosaic becomes an even 2-up grid */
+    .proj-asym       { grid-template-columns: 1fr 1fr !important; }
+    .proj-asym > *   { grid-column: auto !important; }
+  }
+
+  /* ---------- Phone ( ≤ 640px ) ---------- */
+  @media (max-width: 640px) {
+    /* Tighten section rhythm so there isn't a wall of whitespace */
+    #root section { padding-top: 64px !important; padding-bottom: 64px !important; }
+
+    /* Nav: shorter bar, smaller links; if they still don't fit they scroll
+       horizontally INSIDE the nav rather than scrolling the whole page */
+    .nav-inner { height: 56px !important; }
+    .nav-brand { font-size: 17px !important; flex: 0 0 auto; }
+    .nav-right {
+      gap: 0 !important; min-width: 0;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .nav-right::-webkit-scrollbar { display: none; }
+    .nav-right > * { flex: 0 0 auto; }
+    .nav-link { padding: 6px 7px !important; font-size: 12px !important; }
+
+    /* Hero: smaller padding + fluid headline that scales with the viewport */
+    .hero          { padding-top: 60px !important; padding-bottom: 52px !important; }
+    .hero-headline { font-size: 13vw !important; line-height: 0.95 !important; }
+    .hero-sub span { white-space: normal !important; }   /* let the typed word wrap */
+
+    /* Buttons stack full-width */
+    .hero-ctas    { width: 100%; }
+    .hero-ctas a  { flex: 1 1 100% !important; text-align: center !important; }
+
+    /* Project cards: single column */
+    .proj-asym { grid-template-columns: 1fr !important; }
+
+    /* Project list rows: keep year + title + arrow, drop blurb & tags */
+    .proj-list-row { grid-template-columns: 50px 1fr 28px !important; gap: 12px !important; }
+    .proj-list-row > *:nth-child(3),
+    .proj-list-row > *:nth-child(4) { display: none !important; }
+
+    /* Modals: less padding, case-study rows stack */
+    .modal-pad   { padding: 22px !important; }
+    .case-block  { grid-template-columns: 1fr !important; gap: 6px !important; }
+  }
+
+  /* ---------- Small phone ( ≤ 420px ) ---------- */
+  @media (max-width: 420px) {
+    .container     { padding: 0 16px !important; }
+    .nav-link      { padding: 5px 6px !important; font-size: 11px !important; }
+    .hero-headline { font-size: 14vw !important; }
+    .modal-pad     { padding: 16px !important; }
+    /* Keep the tweaks panel inside the screen */
+    .twk-panel     { width: calc(100vw - 24px) !important; right: 12px !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ===========================================================
+     CONFIG FILES — edit these to customise the whole site.
+     Loaded as plain scripts BEFORE React so the components can
+     read them. See README.md for a full guide.
+     =========================================================== -->
+<script src="theme.config.js"></script>
+<script src="site.config.js"></script>
+<script src="projects.config.js"></script>
+<script src="experience.config.js"></script>
+
+<!-- React 18 + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Tweaks shell + module scripts -->
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="sections.jsx"></script>
+<script type="text/babel" src="hero.jsx"></script>
+<script type="text/babel" src="projects.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
