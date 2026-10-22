@@ -163,6 +163,8 @@
     /* Modals: less padding, case-study rows stack */
     .modal-pad   { padding: 22px !important; }
     .case-block  { grid-template-columns: 1fr !important; gap: 6px !important; }
+    .case-gallery { grid-template-columns: repeat(3, 70%) !important; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .case-gallery > figure { scroll-snap-align: start; }
   }
 
   /* ---------- Small phone ( ≤ 420px ) ---------- */

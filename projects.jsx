@@ -149,7 +149,20 @@ function ProjectLayout({ layout, projects, unlocked, onOpen, palette, fonts }) {
 }
 
 // Decorative visual that hints at the project's domain — striped placeholder.
-function ProjectVisual({ accent, palette, fonts, locked, size }) {
+function ProjectVisual({ accent, palette, fonts, locked, size, image, imagePosition }) {
+  if (image && !locked) {
+    const h = size === 'feature' ? 280 : size === 'wide' ? 220 : 180;
+    return (
+      <div style={{
+        position:'relative', width:'100%', height: h, borderRadius: 12, overflow:'hidden',
+        border: `1px solid ${palette.line}`, background: palette.surface,
+      }}>
+        <img src={image} alt="" loading="lazy" style={{
+          width:'100%', height:'100%', objectFit:'cover', objectPosition: imagePosition || 'center top', display:'block',
+        }} />
+      </div>
+    );
+  }
   const stripe = `repeating-linear-gradient(135deg, ${palette.surface} 0 10px, color-mix(in srgb, ${palette.ink} 4%, ${palette.surface}) 10px 11px)`;
   const tall = size === 'feature' ? 280 : size === 'wide' ? 220 : 180;
   return (
@@ -231,8 +244,10 @@ function ProjectCard({ p, size = 'normal', unlocked, palette, fonts, onOpen }) {
         color: palette.ink,
       }}>
       <ProjectVisual accent={p.accent} palette={palette} fonts={fonts}
-                     locked={p.locked && !unlocked} size={size} />
+                     locked={p.locked && !unlocked} size={size}
+                     image={p.cover} imagePosition={p.coverPosition} />
       <div style={{ paddingTop: 18 }}>
+        {p.award && <AwardBadge text={p.award} palette={palette} fonts={fonts} />}
         <div style={{
           display:'flex', justifyContent:'space-between', alignItems:'baseline',
           fontFamily: fonts.mono, fontSize: 11, color: palette.mute, letterSpacing:'0.14em',
@@ -331,7 +346,8 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
         borderRadius: 16, border: `1px solid ${palette.line}`,
         animation:'slideUp 220ms cubic-bezier(.2,.8,.2,1)',
       }}>
-        <ProjectVisual accent={p.accent} palette={palette} fonts={fonts} locked={false} size="feature" />
+        <ProjectVisual accent={p.accent} palette={palette} fonts={fonts} locked={false} size="feature"
+                       image={p.cover} imagePosition={p.coverPosition} />
         <div className="modal-pad" style={{ padding: 36 }}>
           <div style={{
             display:'flex', justifyContent:'space-between', alignItems:'center',
@@ -351,16 +367,40 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
           }}>{p.title}</h2>
           <p style={{ color: palette.mute, marginTop: 0, fontSize: 16, lineHeight: 1.6, maxWidth: 700 }}>{p.blurb}</p>
 
+          {(p.award || p.role) && (
+            <div style={{ display:'flex', flexWrap:'wrap', gap: 10, marginTop: 14 }}>
+              {p.award && <AwardBadge text={p.award} palette={palette} fonts={fonts} />}
+              {p.role && (
+                <span style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing:'0.08em', color: palette.mute, padding:'5px 0' }}>
+                  {p.role}
+                </span>
+              )}
+            </div>
+          )}
+
+          {p.links && p.links.length > 0 && (
+            <div style={{ display:'flex', flexWrap:'wrap', gap: 10, marginTop: 18 }}>
+              {p.links.map((l) => (
+                <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" style={{
+                  padding:'9px 16px', borderRadius: 999, fontSize: 13.5,
+                  background: l.primary ? palette.ink : 'transparent',
+                  color: l.primary ? palette.bg : palette.ink,
+                  border: `1px solid ${l.primary ? palette.ink : palette.line}`,
+                }}>{l.label} ↗</a>
+              ))}
+            </div>
+          )}
+
           {p.metrics && (
             <div style={{
-              display:'grid', gridTemplateColumns:`repeat(${p.metrics.length}, 1fr)`,
+              display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))',
               gap: 0, margin:'28px 0', borderTop:`1px solid ${palette.line}`,
               borderBottom:`1px solid ${palette.line}`,
             }}>
               {p.metrics.map((m,i) => (
                 <div key={i} style={{
                   padding:'18px 16px',
-                  borderRight: i < p.metrics.length-1 ? `1px solid ${palette.line}` : 'none',
+                  borderRight: `1px solid ${palette.line}`, marginRight: -1,
                 }}>
                   <div style={{ fontFamily: fonts.display, fontSize: 32, letterSpacing:'-0.02em', fontWeight:500 }}>
                     {m.v}
@@ -376,6 +416,29 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
           <CaseBlock title="Problem" body={c.problem} palette={palette} fonts={fonts} />
           <CaseBlock title="Approach" body={c.approach} palette={palette} fonts={fonts} />
           <CaseBlock title="Result"  body={c.result}  palette={palette} fonts={fonts} />
+
+          {c.gallery && c.gallery.length > 0 && (
+            <div className="case-gallery" style={{
+              display:'grid', gridTemplateColumns:`repeat(${c.gallery.length}, 1fr)`, gap: 14, margin:'32px 0 8px',
+            }}>
+              {c.gallery.map((g) => (
+                <figure key={g.src} style={{ margin: 0 }}>
+                  <img src={g.src} alt={g.caption || ''} loading="lazy" style={{
+                    width:'100%', display:'block', borderRadius: 14, border:`1px solid ${palette.line}`,
+                  }} />
+                  {g.caption && (
+                    <figcaption style={{ fontFamily: fonts.mono, fontSize: 11, color: palette.mute, marginTop: 8, letterSpacing:'0.04em' }}>
+                      {g.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          )}
+
+          {(c.sections || []).map((sec) => (
+            <CaseBlock key={sec.title} title={sec.title} body={sec.body} palette={palette} fonts={fonts} />
+          ))}
 
           <div style={{ marginTop: 28 }}>
             <div style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing:'0.14em', textTransform:'uppercase', color: palette.mute, marginBottom: 10 }}>
@@ -402,8 +465,29 @@ function CaseBlock({ title, body, palette, fonts }) {
         fontFamily: fonts.mono, fontSize: 11, letterSpacing:'0.14em',
         textTransform:'uppercase', color: palette.mute, paddingTop: 4,
       }}>{title}</div>
-      <div style={{ fontSize: 15.5, lineHeight: 1.65, color: palette.ink, maxWidth: 640 }}>{body}</div>
+      <div style={{ fontSize: 15.5, lineHeight: 1.65, color: palette.ink, maxWidth: 640 }}>
+        {Array.isArray(body) ? (
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {body.map((b, i) => <li key={i} style={{ marginBottom: 6 }}>{b}</li>)}
+          </ul>
+        ) : body}
+      </div>
     </div>
+  );
+}
+
+function AwardBadge({ text, palette, fonts }) {
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', gap: 6, marginBottom: 10,
+      padding:'5px 10px', borderRadius: 999, background: palette.accentSoft, color: palette.accent,
+      fontFamily: fonts.mono, fontSize: 11, letterSpacing:'0.06em', fontWeight: 600,
+    }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+        <circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>
+      </svg>
+      {text}
+    </span>
   );
 }
 

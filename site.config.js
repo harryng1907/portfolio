@@ -24,7 +24,7 @@ window.SITE = {
       'real-world insight.',
     ],
     blurb:
-      'Final-year Data Science & Decisions student at UNSW Sydney, working where data, media and marketing meet — from YOLO-based computer vision to people analytics and campaign growth.',
+      'Final-year Data Science & Decisions student at UNSW Sydney, working where data, media and marketing meet — from YOLO-based computer vision and people analytics to POOL, an AI matching app that placed 3rd nationally.',
     primaryCta:   { label: 'See selected work →', href: '#projects' },
     secondaryCta: { label: 'Get in touch',        href: '#contact'  },
     statusLine: 'Open to graduate roles · from Dec 2026',
@@ -32,7 +32,7 @@ window.SITE = {
       { label: 'mAP@0.5 on CV model',  value: 94,   suffix: '%' },
       { label: 'Images labelled',      value: 1800, suffix: '+' },
       { label: 'Social reach growth',  value: 300,  suffix: '%' },
-      { label: 'Case comp placing',    value: 1,    suffix: 'st' },
+      { label: 'Competition podiums',  value: 2,    suffix: ''   },
     ],
     chartHeadlineLead:  'building a career in',
     chartHeadlineFocus: 'data science',
@@ -53,7 +53,8 @@ window.SITE = {
       ['status',     '**graduating Dec 2026**'],
       ['---',        ''],
       ['languages',  'Vietnamese (native), English (fluent)'],
-      ['award',      '1st place · DataSoc × Accenture'],
+      ['awards',     '**3rd in Australia** · Futura Remix'],
+      ['',           '1st place · DataSoc × Accenture'],
     ],
   },
 
