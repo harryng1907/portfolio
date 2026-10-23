@@ -25,6 +25,7 @@ window.PROJECTS = {
       links:[
         { label:'Try the live app', href:'https://pool-app-gules.vercel.app', primary:true },
         { label:'View code', href:'https://github.com/harryng1907/pool-app' },
+        { label:'State-round win on LinkedIn', href:'https://www.linkedin.com/feed/update/urn:li:activity:7508329637731549186/' },
       ],
       metrics:[
         {k:'national final',v:'3rd'},
@@ -77,9 +78,12 @@ window.PROJECTS = {
       blurb:'Found why a 13,000-person company kept losing its best people, and pitched a targeted retention programme that won 1st place in front of Accenture judges.',
       tags:['Python','Logistic regression','Hypothesis testing','Consulting'],
       accent:'client',
-      cover:'assets/accenture/winners.jpg',
-      coverPosition:'center 45%',
+      cover:'assets/accenture/pay-compression.jpg',
+      coverFit:'contain',
       locked:false,
+      links:[
+        { label:'See the win on LinkedIn', href:'https://www.linkedin.com/feed/update/urn:li:activity:7495479708806144001/' },
+      ],
       metrics:[
         {k:'placing',v:'1st'},
         {k:'HiPo vs other exit rate',v:'~10×'},
@@ -94,9 +98,8 @@ window.PROJECTS = {
           'Built a multivariate logistic regression to isolate where regrettable departures concentrate, and checked effect sizes, not just p-values.',
         ],
         result:'Pitched a High-Potential Retention & Progression Program, targeted rather than company-wide, and won 1st place for analytical rigour and commercial viability.',
-        galleryCols:2,
+        galleryCols:1,
         gallery:[
-          { src:'assets/accenture/pay-compression.jpg', caption:'High-potentials are paid below market at every performance level' },
           { src:'assets/accenture/career-hotspots.jpg', caption:'First-year and Level 3 high-potentials leave at ~2.4–3× the rate of their peers' },
         ],
         sections:[
