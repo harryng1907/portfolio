@@ -65,7 +65,7 @@ function Projects({ t, palette, fonts, density }) {
             fontSize:'clamp(36px, 5vw, 64px)', lineHeight: 1.05, letterSpacing:'-0.02em',
             margin: 0, maxWidth: 720,
           }}>
-            A small, opinionated collection. <span style={{ color: palette.mute }}>I’d rather ship five that I can defend than fifteen I half-remember.</span>
+            A small, opinionated collection. <span style={{ color: palette.mute }}>Every one of these I can walk you through end to end.</span>
           </h2>
           <div style={{ fontFamily: fonts.mono, fontSize: 12, color: palette.mute, letterSpacing:'0.1em' }}>
             {PROJECT_LIST.length} entries · {PROJECT_LIST.filter(p=>p.locked).length} locked
@@ -149,16 +149,17 @@ function ProjectLayout({ layout, projects, unlocked, onOpen, palette, fonts }) {
 }
 
 // Decorative visual that hints at the project's domain — striped placeholder.
-function ProjectVisual({ accent, palette, fonts, locked, size, image, imagePosition }) {
+function ProjectVisual({ accent, palette, fonts, locked, size, image, imagePosition, imageFit }) {
   if (image && !locked) {
     const h = size === 'feature' ? 280 : size === 'wide' ? 220 : 180;
     return (
       <div style={{
         position:'relative', width:'100%', height: h, borderRadius: 12, overflow:'hidden',
-        border: `1px solid ${palette.line}`, background: palette.surface,
+        border: `1px solid ${palette.line}`, background: imageFit === 'contain' ? '#fff' : palette.surface,
+        padding: imageFit === 'contain' ? 10 : 0, boxSizing:'border-box',
       }}>
         <img src={image} alt="" loading="lazy" style={{
-          width:'100%', height:'100%', objectFit:'cover', objectPosition: imagePosition || 'center top', display:'block',
+          width:'100%', height:'100%', objectFit: imageFit || 'cover', objectPosition: imagePosition || 'center top', display:'block',
         }} />
       </div>
     );
@@ -245,7 +246,7 @@ function ProjectCard({ p, size = 'normal', unlocked, palette, fonts, onOpen }) {
       }}>
       <ProjectVisual accent={p.accent} palette={palette} fonts={fonts}
                      locked={p.locked && !unlocked} size={size}
-                     image={p.cover} imagePosition={p.coverPosition} />
+                     image={p.cover} imagePosition={p.coverPosition} imageFit={p.coverFit} />
       <div style={{ paddingTop: 18 }}>
         {p.award && <AwardBadge text={p.award} palette={palette} fonts={fonts} />}
         <div style={{
@@ -347,7 +348,7 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
         animation:'slideUp 220ms cubic-bezier(.2,.8,.2,1)',
       }}>
         <ProjectVisual accent={p.accent} palette={palette} fonts={fonts} locked={false} size="feature"
-                       image={p.cover} imagePosition={p.coverPosition} />
+                       image={p.cover} imagePosition={p.coverPosition} imageFit={p.coverFit} />
         <div className="modal-pad" style={{ padding: 36 }}>
           <div style={{
             display:'flex', justifyContent:'space-between', alignItems:'center',
@@ -418,8 +419,8 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
           <CaseBlock title="Result"  body={c.result}  palette={palette} fonts={fonts} />
 
           {c.gallery && c.gallery.length > 0 && (
-            <div className="case-gallery" style={{
-              display:'grid', gridTemplateColumns:`repeat(${c.gallery.length}, 1fr)`, gap: 14, margin:'32px 0 8px',
+            <div className={(c.galleryCols || c.gallery.length) > 1 ? 'case-gallery' : ''} style={{
+              display:'grid', gridTemplateColumns:`repeat(${c.galleryCols || c.gallery.length}, 1fr)`, gap: 14, margin:'32px 0 8px',
             }}>
               {c.gallery.map((g) => (
                 <figure key={g.src} style={{ margin: 0 }}>
@@ -437,7 +438,7 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
           )}
 
           {(c.sections || []).map((sec) => (
-            <CaseBlock key={sec.title} title={sec.title} body={sec.body} palette={palette} fonts={fonts} />
+            <CaseBlock key={sec.title} title={sec.title} body={sec.body} image={sec.image} palette={palette} fonts={fonts} />
           ))}
 
           <div style={{ marginTop: 28 }}>
@@ -458,7 +459,7 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
     </div>
   );
 }
-function CaseBlock({ title, body, palette, fonts }) {
+function CaseBlock({ title, body, image, palette, fonts }) {
   return (
     <div className="case-block" style={{ marginTop: 22, display:'grid', gridTemplateColumns:'120px 1fr', gap: 24 }}>
       <div style={{
@@ -471,6 +472,11 @@ function CaseBlock({ title, body, palette, fonts }) {
             {body.map((b, i) => <li key={i} style={{ marginBottom: 6 }}>{b}</li>)}
           </ul>
         ) : body}
+        {image && (
+          <img src={image} alt={title} loading="lazy" style={{
+            width:'100%', display:'block', marginTop: body ? 14 : 0, borderRadius: 12, border:`1px solid ${palette.line}`,
+          }} />
+        )}
       </div>
     </div>
   );
