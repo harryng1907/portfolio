@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Purple Flag Access — venue accessibility directory</title>
+<meta name="description" content="A directory of venues in NSW Purple Flag precincts, with the accessibility details listed in full. Student prototype.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   TOKENS — aligned to the NSW Design System (Public Sans,
+   NSW purple), because a real build would sit on top of it.
+   =========================================================== */
+:root{
+  --ink:#1c1b1e; --ink-soft:#4a4750;
+  --purple-deep:#441170; --purple:#6a2fa0; --night:#2d0b4d;
+  --lilac:#efe6f7; --lilac-line:#d9c7ec;
+  --paper:#fff; --paper-alt:#f7f5f9; --line:#c9c6cf;
+  --ok-bg:#e3f3ea; --ok-ink:#0f5a33; --ok-line:#8ec9aa;
+  --warn-bg:#fff3d6; --warn-ink:#6b4000; --warn-line:#e0b451;
+  --stop-bg:#fdeaec; --stop-ink:#8e0d18; --stop-line:#e59aa2;
+  --focus:#ffb703; --radius:4px; --step:1rem; --measure:66ch;
+}
+html[data-textsize="large"]{ --step:1.15rem; }
+html[data-textsize="xlarge"]{ --step:1.32rem; }
+html[data-contrast="high"]{
+  --ink:#000; --ink-soft:#000; --paper:#fff; --paper-alt:#fff;
+  --lilac:#fff; --lilac-line:#000; --line:#000;
+  --purple:#3d0080; --purple-deep:#2a0059;
+  --ok-bg:#fff; --ok-ink:#00451f; --ok-line:#00451f;
+  --warn-bg:#fff; --warn-ink:#5a3600; --warn-line:#5a3600;
+  --stop-bg:#fff; --stop-ink:#8e0d18; --stop-line:#8e0d18;
+}
+html[data-contrast="high"] .card,html[data-contrast="high"] .venue,
+html[data-contrast="high"] .chip,html[data-contrast="high"] .photo-ph{ border-width:2px; }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ font-size:100%; }
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{
+  animation-duration:.001ms!important; transition-duration:.001ms!important; } }
+
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  font-size:var(--step); line-height:1.6; -webkit-text-size-adjust:100%;
+}
+
+:focus{ outline:none; }
+:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; box-shadow:0 0 0 6px var(--focus); border-radius:2px; }
+[tabindex="-1"]:focus-visible{ box-shadow:none; outline:3px dashed var(--purple); }
+[tabindex="-1"],:target{ scroll-margin-top:1.5rem; }
+
+.skip{ position:absolute; left:-9999px; }
+.skip:focus{ left:0; top:0; z-index:99; padding:.85rem 1.25rem; background:var(--purple-deep); color:#fff; font-weight:700; }
+
+.wrap{ max-width:76rem; margin:0 auto; padding:0 1.25rem; }
+main{ padding-bottom:4rem; }
+p,li{ max-width:var(--measure); }
+h1,h2,h3,h4{ line-height:1.2; margin:0 0 .5em; font-weight:700; letter-spacing:-.012em; }
+h1{ font-size:calc(var(--step)*2.1); }
+h2{ font-size:calc(var(--step)*1.45); margin-top:2.25rem; }
+h3{ font-size:calc(var(--step)*1.15); margin-top:1.4rem; }
+@media (max-width:40rem){ h1{ font-size:calc(var(--step)*1.65); } }
+a{ color:var(--purple); text-underline-offset:.18em; }
+a:hover{ color:var(--purple-deep); text-decoration-thickness:.14em; }
+
+/* utility bar */
+.utility{ background:var(--paper-alt); border-bottom:1px solid var(--line); }
+.utility-inner{ display:flex; flex-wrap:wrap; gap:1rem 2rem; align-items:center;
+  padding:.55rem 0; font-size:calc(var(--step)*.88); }
+.ctl{ display:flex; align-items:center; gap:.5rem; }
+.ctl b{ font-weight:600; }
+.seg{ display:flex; }
+.seg button{ font:inherit; font-weight:600; cursor:pointer; min-height:2.75rem; min-width:2.75rem;
+  padding:.35rem .8rem; background:var(--paper); color:var(--ink); border:1px solid var(--line); margin-left:-1px; }
+.seg button:first-child{ border-radius:var(--radius) 0 0 var(--radius); margin-left:0; }
+.seg button:last-child{ border-radius:0 var(--radius) var(--radius) 0; }
+.seg button:hover{ background:var(--lilac); }
+.seg button[aria-pressed="true"]{ background:var(--purple-deep); color:#fff; border-color:var(--purple-deep); }
+
+/* header */
+.masthead{ border-bottom:1px solid var(--line); }
+.masthead-inner{ display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between; padding:.9rem 0; }
+.brand{ display:flex; align-items:center; gap:.65rem; text-decoration:none; color:var(--ink); padding:.35rem; margin:-.35rem; }
+.brand svg{ width:2.15rem; height:2.15rem; flex:none; }
+.brand-name{ font-weight:700; font-size:calc(var(--step)*1.05); line-height:1.15; }
+.brand-sub{ display:block; font-weight:400; font-size:calc(var(--step)*.78); color:var(--ink-soft); }
+nav.primary ul{ list-style:none; display:flex; flex-wrap:wrap; gap:.25rem; margin:0; padding:0; }
+nav.primary a{ display:block; padding:.7rem .85rem; min-height:2.75rem; text-decoration:none;
+  color:var(--ink); font-weight:600; border-bottom:4px solid transparent; }
+nav.primary a:hover{ background:var(--lilac); }
+nav.primary a[aria-current="page"]{ border-bottom-color:var(--purple); color:var(--purple-deep); }
+
+/* buttons */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; font:inherit; font-weight:700;
+  cursor:pointer; text-decoration:none; min-height:3rem; padding:.7rem 1.35rem; border-radius:var(--radius);
+  border:2px solid var(--purple-deep); background:var(--purple-deep); color:#fff; }
+.btn:hover{ background:var(--purple); border-color:var(--purple); color:#fff; }
+.btn-2{ background:transparent; color:var(--purple-deep); }
+.btn-2:hover{ background:var(--lilac); color:var(--purple-deep); }
+.btn-sm{ min-height:2.75rem; padding:.5rem 1rem; font-size:calc(var(--step)*.92); }
+.btn-block{ width:100%; }
+
+/* hero */
+.hero{ background:var(--purple-deep); color:#fff; padding:2.75rem 0 3rem; }
+.hero h1{ max-width:20ch; font-size:calc(var(--step)*2.5); }
+@media (max-width:40rem){ .hero h1{ font-size:calc(var(--step)*1.8); } }
+.hero p{ color:#f0e8f7; font-size:calc(var(--step)*1.1); max-width:54ch; }
+
+/* needs picker */
+.needs{ display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(19rem,1fr)); margin:1.25rem 0 0; padding:0; list-style:none; }
+.need{ margin:0; }
+.need label{ display:flex; gap:.75rem; align-items:flex-start; background:var(--paper); color:var(--ink);
+  border:2px solid var(--line); border-radius:var(--radius); padding:.9rem 1rem; min-height:3rem; cursor:pointer; height:100%; }
+.need label:hover{ border-color:var(--purple); background:var(--lilac); }
+.need input{ width:1.4rem; height:1.4rem; margin:.15rem 0 0; flex:none; accent-color:var(--purple-deep); }
+.need input:checked ~ span .need-name{ text-decoration:underline; }
+.need-name{ display:block; font-weight:700; }
+.need-eg{ display:block; font-size:calc(var(--step)*.88); color:var(--ink-soft); }
+
+/* layout */
+.app{ display:grid; gap:2rem; grid-template-columns:21rem 1fr; align-items:start; margin-top:1.5rem; }
+@media (max-width:62rem){ .app{ grid-template-columns:1fr; } }
+
+/* filters */
+fieldset{ border:0; padding:0; margin:0 0 1.25rem; }
+legend{ font-weight:700; padding:0; margin-bottom:.35rem; }
+.check{ display:flex; align-items:flex-start; gap:.65rem; padding:.55rem .5rem; min-height:2.75rem;
+  border-radius:var(--radius); cursor:pointer; }
+.check:hover{ background:var(--lilac); }
+.check input{ width:1.3rem; height:1.3rem; margin:.2rem 0 0; flex:none; accent-color:var(--purple-deep); }
+.check span{ line-height:1.35; }
+details.group{ border:1px solid var(--line); border-radius:var(--radius); margin-bottom:.6rem; }
+details.group > summary{ font-weight:700; padding:.75rem .85rem; min-height:2.75rem; cursor:pointer; list-style-position:inside; }
+details.group > summary:hover{ background:var(--lilac); }
+details.group[open] > summary{ border-bottom:1px solid var(--line); }
+.group-body{ padding:.4rem .35rem .6rem; }
+select,input[type="search"]{ font:inherit; width:100%; min-height:3rem; padding:.55rem .6rem;
+  border:1px solid var(--ink-soft); border-radius:var(--radius); background:var(--paper); color:var(--ink); }
+.hint{ color:var(--ink-soft); font-size:calc(var(--step)*.88); margin:.15rem 0 .5rem; }
+
+/* your needs summary */
+.yours{ border:2px solid var(--purple); border-radius:var(--radius); padding:1rem 1.1rem; margin-bottom:1.25rem; background:var(--lilac); }
+.yours h2{ margin:0 0 .35rem; font-size:calc(var(--step)*1.05); }
+.tags{ list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; margin:.6rem 0 0; padding:0; }
+.tag{ display:inline-flex; align-items:center; gap:.4rem; background:var(--paper); border:1px solid var(--purple);
+  color:var(--purple-deep); border-radius:2rem; padding:.3rem .75rem; font-size:calc(var(--step)*.86); font-weight:600; }
+
+/* venue cards */
+.venue{ border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.2rem 1.25rem; }
+.venue + .venue{ margin-top:1rem; }
+.venue h3{ margin:0 0 .15rem; font-size:calc(var(--step)*1.2); }
+.venue h3 a{ text-decoration:none; }
+.venue h3 a:hover{ text-decoration:underline; }
+.meta{ color:var(--ink-soft); font-size:calc(var(--step)*.92); margin:0 0 .6rem; }
+.type{ display:inline-block; border:1px solid var(--line); background:var(--paper-alt);
+  border-radius:2rem; padding:.15rem .65rem; font-size:calc(var(--step)*.82); font-weight:600; margin-right:.35rem; }
+
+.strip{ display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin:.85rem 0; }
+.photo-ph{ aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:.6rem; background:var(--paper-alt); border:2px dashed var(--line); border-radius:var(--radius);
+  color:var(--ink-soft); font-size:calc(var(--step)*.8); line-height:1.3; }
+
+.chips{ list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; margin:.75rem 0 0; padding:0; }
+.chip{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--line); border-radius:2rem;
+  padding:.3rem .75rem; font-size:calc(var(--step)*.86); font-weight:600; background:var(--paper-alt); }
+.chip svg{ width:1em; height:1em; flex:none; }
+.chip-yes{ background:var(--ok-bg); border-color:var(--ok-line); color:var(--ok-ink); }
+.chip-no{ background:var(--stop-bg); border-color:var(--stop-line); color:var(--stop-ink); }
+
+.match{ font-weight:700; padding:.5rem .85rem; border-radius:var(--radius); border-left:5px solid; display:block; }
+.match-full{ background:var(--ok-bg); border-color:var(--ok-ink); color:var(--ok-ink); }
+.match-part{ background:var(--warn-bg); border-color:var(--warn-ink); color:var(--warn-ink); }
+.match-none{ background:var(--stop-bg); border-color:var(--stop-ink); color:var(--stop-ink); }
+.match + .match-detail{ margin:.5rem 0 0; font-size:calc(var(--step)*.92); }
+
+.checked{ font-size:calc(var(--step)*.88); color:var(--ink-soft); margin:.85rem 0 0; }
+.checked.stale{ color:var(--warn-ink); font-weight:600; }
+
+/* venue detail */
+.facts{ margin:0; }
+.facts div{ display:flex; flex-wrap:wrap; gap:.3rem 1.5rem; padding:.6rem 0; border-bottom:1px solid var(--line); }
+.facts dt{ font-weight:700; min-width:16rem; flex:none; }
+.facts dd{ margin:0; }
+.panel{ border:1px solid var(--lilac-line); background:var(--lilac); border-radius:var(--radius); padding:1.1rem 1.2rem; }
+.panel-night{ background:var(--night); color:#fff; border:none; }
+.panel-night h2{ color:#fff; margin-top:0; }
+.panel-night .facts div{ border-color:rgba(255,255,255,.35); }
+html[data-contrast="high"] .panel-night{ background:#fff; color:#000; border:2px solid #000; }
+html[data-contrast="high"] .panel-night h2{ color:#000; }
+html[data-contrast="high"] .panel-night .facts div{ border-color:#000; }
+
+.card{ border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.2rem; }
+.notice{ border:2px solid var(--warn-line); background:var(--warn-bg); color:var(--warn-ink);
+  padding:1rem 1.15rem; border-radius:var(--radius); font-weight:600; }
+.notice p{ margin:0; color:inherit; } .notice p + p{ margin-top:.5rem; }
+.count{ font-weight:700; font-size:calc(var(--step)*1.1); margin:0 0 1rem; }
+.actions{ display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem; }
+.sr-only{ position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+.back{ display:inline-flex; align-items:center; gap:.4rem; min-height:2.75rem; font-weight:600; }
+table{ border-collapse:collapse; width:100%; margin-top:1rem; }
+th,td{ text-align:left; padding:.7rem .75rem; border-bottom:1px solid var(--line); vertical-align:top; }
+th{ background:var(--paper-alt); font-weight:700; }
+caption{ text-align:left; font-weight:700; padding-bottom:.5rem; }
+footer.site{ border-top:1px solid var(--line); background:var(--paper-alt); padding:2rem 0 3rem; }
+footer.site p{ color:var(--ink-soft); font-size:calc(var(--step)*.92); }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#filters">Skip to filters</a>
+
+<div class="utility">
+  <div class="wrap utility-inner">
+    <div class="ctl"><b id="ts">Text size</b>
+      <div class="seg" role="group" aria-labelledby="ts">
+        <button type="button" data-textsize="normal" aria-pressed="true">Normal</button>
+        <button type="button" data-textsize="large" aria-pressed="false">Large</button>
+        <button type="button" data-textsize="xlarge" aria-pressed="false">Largest</button>
+      </div>
+    </div>
+    <div class="ctl"><b id="hc">Higher contrast</b>
+      <div class="seg" role="group" aria-labelledby="hc">
+        <button type="button" data-contrast="normal" aria-pressed="true">Off</button>
+        <button type="button" data-contrast="high" aria-pressed="false">On</button>
+      </div>
+    </div>
+    <p style="margin:0"><a href="#/help">Help and contact</a></p>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <a class="brand" href="#/">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect x="4" y="3" width="2.5" height="26" fill="#441170"/>
+        <path d="M6.5 4h19l-4.5 6 4.5 6h-19z" fill="#6a2fa0"/>
+      </svg>
+      <span class="brand-name">Purple Flag Access
+        <span class="brand-sub">Venue accessibility directory</span></span>
+    </a>
+    <nav class="primary" aria-label="Main">
+      <ul>
+        <li><a href="#/">Home</a></li>
+        <li><a href="#/browse">All venues</a></li>
+        <li><a href="#/register">For venues</a></li>
+        <li><a href="#/about">About</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<p class="sr-only" role="status" aria-live="polite" id="route-status"></p>
+
+<main id="main" tabindex="-1"><div id="view"></div></main>
+
+<footer class="site">
+  <div class="wrap">
+    <p><strong>Student prototype.</strong> Not a NSW Government service. Every venue, photo caption and
+      accessibility detail below is invented sample data.</p>
+    <p><a href="#/about">About this prototype</a> &middot; <a href="#/help">Help and contact</a></p>
+  </div>
+</footer>
+
+<script>
+/* =============================================================
+   FEATURES — the accessibility things a venue can actually have.
+   The directory is built on these. Grouped only for display.
+   ============================================================= */
+const FEATURES = {
+  step_free:      'Step-free entry',
+  wide_door:      'Entry door 850 mm or wider',
+  auto_door:      'Automatic or held-open door',
+  ramp:           'Ramp at the entrance',
+  entry_late:     'Accessible entrance open whenever they are trading',
+
+  step_free_in:   'Step-free throughout inside',
+  wide_paths:     'Paths inside 1000 mm or wider',
+  low_counter:    'Counter 900 mm or lower',
+  seating_plenty: 'Plenty of seating, not just standing room',
+  seating_move:   'Moveable chairs and tables',
+
+  acc_toilet:     'Accessible toilet',
+  toilet_unlocked:'Accessible toilet is unlocked',
+  transfer_left:  'Toilet transfer from the left',
+  transfer_right: 'Toilet transfer from the right',
+
+  quiet_space:    'Quiet or low-sensory room',
+  quiet_hours:    'Regular low-sensory hours',
+  no_strobe:      'No strobe or flashing lights',
+  talkable:       'Quiet enough for conversation',
+  light_adjust:   'Lighting can be adjusted on request',
+  light_bright:   'Bright enough to read and lipread',
+
+  hearing_loop:   'Hearing loop',
+  auslan_staff:   'Staff with Auslan basics',
+  comm_cards:     'Communication cards at the counter',
+  large_print:    'Large print menu',
+  braille_menu:   'Braille menu',
+  picture_menu:   'Picture menu',
+  order_written:  'You can order in writing or by app',
+
+  staff_trained:  'Staff have done disability awareness training',
+  animals_ok:     'Assistance animals welcome',
+  animal_water:   'Water bowl for assistance animals',
+  table_service:  'Table service, no queuing at the bar',
+  companion_card: 'Companion Card accepted',
+
+  station_lift:   'Nearest station has a working lift',
+  taxi_close:     'Taxi rank within 200 m',
+  acc_parking:    'Accessible parking nearby',
+  drop_off:       'Step-free drop-off point at the door'
+};
+
+const FEATURE_GROUPS = [
+  { label:'Getting in',            ids:['step_free','wide_door','auto_door','ramp','entry_late'] },
+  { label:'Moving around inside',  ids:['step_free_in','wide_paths','low_counter','seating_plenty','seating_move'] },
+  { label:'Toilets',               ids:['acc_toilet','toilet_unlocked','transfer_left','transfer_right'] },
+  { label:'Sound and light',       ids:['quiet_space','quiet_hours','no_strobe','talkable','light_adjust','light_bright'] },
+  { label:'Communication',         ids:['hearing_loop','auslan_staff','comm_cards','large_print','braille_menu','picture_menu','order_written'] },
+  { label:'Staff and service',     ids:['staff_trained','animals_ok','animal_water','table_service','companion_card'] },
+  { label:'Getting there and home',ids:['station_lift','taxi_close','acc_parking','drop_off'] }
+];
+
+/* =============================================================
+   NEEDS — the starting point. Picking one of these just ticks a
+   set of features for you. You can see and change every one.
+   Nothing is stored, no account, no diagnosis required.
+   ============================================================= */
+const NEEDS = [
+  { id:'wheelchair', name:'I use a wheelchair or scooter', eg:'Also useful for prams and walkers',
+    features:['step_free','wide_door','wide_paths','acc_toilet','low_counter'] },
+  { id:'walking', name:'I walk but stairs are hard', eg:'Crutches, a cane, limited standing, chronic pain',
+    features:['step_free','seating_plenty','acc_toilet','drop_off'] },
+  { id:'lowvision', name:'I am blind or have low vision', eg:'Large print, braille, guide dog',
+    features:['light_bright','large_print','braille_menu','staff_trained','animals_ok'] },
+  { id:'deaf', name:'I am Deaf or hard of hearing', eg:'Auslan, hearing loop, lipreading',
+    features:['hearing_loop','auslan_staff','talkable','light_bright','order_written'] },
+  { id:'sensory', name:'Loud or bright places are hard for me', eg:'Autism, sensory sensitivity, migraine',
+    features:['quiet_space','no_strobe','talkable','light_adjust'] },
+  { id:'cognitive', name:'I need things simple and clear', eg:'Learning disability, memory, brain injury',
+    features:['picture_menu','comm_cards','staff_trained','quiet_space'] },
+  { id:'animal', name:'I come with an assistance animal', eg:'Guide, hearing or medical alert dog',
+    features:['animals_ok','animal_water','wide_paths','staff_trained'] },
+  { id:'fatigue', name:'I need to sit down quickly and often', eg:'Fatigue, dizziness, heart or lung conditions',
+    features:['seating_plenty','seating_move','table_service','acc_toilet'] }
+];
+
+/* =============================================================
+   VENUES — invented sample data.
+   f = the features this venue has. details = the plain facts.
+   ============================================================= */
+const VENUES = [
+  { id:'lantern-room', name:'The Lantern Room', type:'Restaurant', cuisine:'Dumplings and Chinese',
+    precinct:'Haymarket', hours:'5pm – 1am, seven nights', checked:'2026-07-14',
+    blurb:'Two-level dumpling bar. The ground floor is fully step-free; the mezzanine is stairs only.',
+    f:['step_free','wide_door','auto_door','entry_late','step_free_in','wide_paths','low_counter','seating_plenty','seating_move','acc_toilet','toilet_unlocked','transfer_left','quiet_space','quiet_hours','no_strobe','talkable','light_adjust','light_bright','hearing_loop','comm_cards','large_print','picture_menu','order_written','staff_trained','animals_ok','animal_water','table_service','companion_card','station_lift','taxi_close','drop_off'],
+    details:{ entry:'No step. Automatic sliding door, 950 mm clear.', inside:'Narrowest path 1200 mm. Bar counter 850 mm.',
+      toilet:'Unisex accessible toilet on the ground floor, unlocked, grab rails, left-hand transfer, 900 mm door.',
+      noise:'About 72 dB at peak. Conversation is possible.', light:'Warm and dimmable. Staff will raise the lighting if you ask.',
+      strobe:'No strobes or flashing signage.', animals:'Welcome. Water bowl on request.',
+      transport:'Central Station, lift runs until the last train. Taxi rank on Thomas Street, 80 m.' } },
+
+  { id:'quiet-hours', name:'Quiet Hours', type:'Cafe and wine bar', cuisine:'Small plates and natural wine',
+    precinct:'Marrickville', hours:'4pm – 11pm, Tue to Sun', checked:'2026-08-25',
+    blurb:'Built around a separate soft-furnished room with dimmable lighting and no music.',
+    f:['step_free','wide_door','entry_late','step_free_in','wide_paths','low_counter','seating_plenty','seating_move','acc_toilet','toilet_unlocked','transfer_left','quiet_space','quiet_hours','no_strobe','talkable','light_adjust','light_bright','hearing_loop','auslan_staff','comm_cards','large_print','braille_menu','picture_menu','order_written','staff_trained','animals_ok','animal_water','table_service','companion_card','station_lift','acc_parking','drop_off'],
+    details:{ entry:'No step. Light manual door, 910 mm clear, level threshold.', inside:'Narrowest path 1150 mm. Counter 900 mm.',
+      toilet:'Accessible toilet, unlocked, signposted from the front door, left-hand transfer, 880 mm door.',
+      noise:'About 64 dB at peak. The soft room is quieter again.', light:'Even and adjustable. No flashing signage.',
+      strobe:'No strobes.', animals:'Welcome. Water bowl and floor space at every table.',
+      transport:'Sydenham Station, lift until the last train. Accessible bay directly outside.' } },
+
+  { id:'riverbend', name:'Riverbend Taphouse', type:'Pub with live music', cuisine:'Pub food and craft beer',
+    precinct:'Parramatta', hours:'Midday – 2am, seven nights', checked:'2026-08-18',
+    blurb:'Riverside pub over two levels with a lift. Step-free right through to the stage view platform.',
+    f:['step_free','wide_door','auto_door','entry_late','step_free_in','wide_paths','low_counter','seating_plenty','seating_move','acc_toilet','toilet_unlocked','transfer_left','transfer_right','quiet_space','quiet_hours','talkable','light_bright','hearing_loop','comm_cards','large_print','order_written','staff_trained','animals_ok','companion_card','station_lift','taxi_close','acc_parking','drop_off'],
+    details:{ entry:'No step. Automatic swing door, 1000 mm clear.', inside:'Lift to the upper level. Paths 1300 mm. Counter 850 mm.',
+      toilet:'Two accessible toilets, one per level, both unlocked, transfer from either side.',
+      noise:'About 95 dB on gig nights, around 70 dB before 8pm.', light:'Stage lighting includes strobes on gig nights.',
+      strobe:'Strobes are used. Listed on each gig page in advance.', animals:'Welcome.',
+      transport:'Parramatta Station, lift until the last train. Accessible bay on Phillip Street.' } },
+
+  { id:'sixpence', name:'Sixpence Social', type:'Pub', cuisine:'Counter meals and schooners',
+    precinct:'Burwood', hours:'11am – midnight, seven nights', checked:'2026-06-20',
+    blurb:'Corner pub. Portable ramp and a call bell at the side entrance, but it gets locked some nights.',
+    f:['step_free','wide_door','ramp','step_free_in','wide_paths','seating_plenty','seating_move','acc_toilet','transfer_right','quiet_hours','no_strobe','light_bright','comm_cards','large_print','staff_trained','animals_ok','companion_card','station_lift','taxi_close'],
+    details:{ entry:'Side entrance, portable ramp at 1:12 over 3.5 m, no handrails. Call bell at the door. Main entrance has one 140 mm step.',
+      inside:'Paths 1050 mm. Bar counter 1100 mm, which is high to reach from a seated position.',
+      toilet:'Accessible toilet with grab rails, right-hand transfer. Kept locked, key is behind the main bar.',
+      noise:'About 88 dB Friday and Saturday. Quieter Tuesday and Wednesday.', light:'Bright in the front bar, dim in the back room.',
+      strobe:'No strobes.', animals:'Welcome.',
+      transport:'Burwood Station, lift until the last train. Rank on Burwood Road, 200 m.' },
+    reports:['2 September 2026 — side entrance was locked around 10pm.','6 September 2026 — ramp entrance locked again on Saturday.'] },
+
+  { id:'taylor-square', name:'Taylor Square Club', type:'Nightclub', cuisine:'Dance floor, late licence',
+    precinct:'Oxford St Rainbow Precinct', hours:'9pm – 5am, Thu to Sun', checked:'2025-11-04',
+    blurb:'Late club. Step-free side entrance staffed from 9pm. Heavy strobe and laser use after 11pm.',
+    f:['step_free','wide_door','ramp','step_free_in','wide_paths','acc_toilet','toilet_unlocked','transfer_right','auslan_staff','staff_trained','animals_ok','companion_card','taxi_close'],
+    details:{ entry:'Step-free side entrance, ramp at 1:14 over 6 m with handrails, 900 mm door. Staffed from 9pm only.',
+      inside:'Paths 1100 mm. Bar counter 1120 mm. Fixed banquettes, no moveable seating.',
+      toilet:'Accessible toilet beside the cloakroom, unlocked, right-hand transfer. Crowded after midnight.',
+      noise:'About 105 dB on the floor. Conversation is not possible.', light:'Dark throughout.',
+      strobe:'Strobes and lasers from 11pm. No warning signage at the door at present.',
+      animals:'Welcome, though the floor gets very crowded.',
+      transport:'Museum Station has no lift. Nearest lift is Town Hall. Rank on Taylor Square, 50 m.' } },
+
+  { id:'pho-lantern', name:'Pho Lantern House', type:'Restaurant', cuisine:'Vietnamese',
+    precinct:'Canley Vale', hours:'10am – 1am, seven nights', checked:'2026-03-11',
+    blurb:'Family restaurant open late. One small step at the front and no ramp yet.',
+    f:['wide_door','entry_late','step_free_in','wide_paths','seating_plenty','seating_move','no_strobe','talkable','light_bright','picture_menu','staff_trained','animals_ok','table_service','taxi_close','acc_parking'],
+    details:{ entry:'One step, 120 mm high. No ramp. Light manual door, 880 mm clear.',
+      inside:'Once inside it is level. Paths 1000 mm. Counter 1080 mm.',
+      toilet:'No accessible toilet. Standard toilets down a narrow corridor with a 780 mm door.',
+      noise:'About 78 dB at peak.', light:'Bright fluorescent throughout.', strobe:'No strobes.',
+      animals:'Welcome.', transport:'Canley Vale Station has no lift — stairs, with a ramp on the eastern side. Rank 120 m.' } },
+
+  { id:'haldon-sweets', name:'Haldon Street Sweets', type:'Dessert shop', cuisine:'Knafeh, baklava, coffee',
+    precinct:'Lakemba', hours:'6pm – 3am, seven nights', checked:'2026-05-30',
+    blurb:'Open shopfront, no step at all. Very bright and very loud after 11pm.',
+    f:['step_free','wide_door','entry_late','step_free_in','seating_plenty','seating_move','no_strobe','light_bright','picture_menu','animals_ok','taxi_close'],
+    details:{ entry:'Open shopfront, no step, 1100 mm wide.',
+      inside:'Level, but the narrowest path between tables is 820 mm, which is tight for a wheelchair. Counter 1150 mm.',
+      toilet:'No customer toilets.', noise:'About 92 dB after 11pm.', light:'Very bright, with illuminated signage inside.',
+      strobe:'No strobes.', animals:'Welcome.', transport:'Lakemba Station has no lift. Rank on Haldon Street, 60 m.' } },
+
+  { id:'basement-88', name:'Basement 88', type:'Live music', cuisine:'Small live room, bar only',
+    precinct:'YCK Laneways', hours:'7pm – 3am, Wed to Sat', checked:'2026-08-02',
+    blurb:'Heritage-listed 1890s building. Entry is down eleven stairs and there is no lift.',
+    f:['staff_trained','animals_ok','station_lift','taxi_close'],
+    details:{ entry:'Eleven steps down, 175 mm each. Heavy pull door, 780 mm clear, 30 mm threshold. The venue reports that step-free entry is blocked by heritage listing conditions.',
+      inside:'Paths 900 mm. Bar counter 1150 mm. Fixed seating only.',
+      toilet:'No accessible toilet. Standard toilets down a further three steps.',
+      noise:'About 103 dB during sets.', light:'Very low. Not enough light to read a menu or lipread.',
+      strobe:'Strobes are used during some sets.', animals:'Welcome, but the stairs are the barrier.',
+      transport:'Wynyard Station, but the York Street lift stops at 11:30pm. Rank on Clarence Street, 150 m.' },
+    reports:['29 August 2026 — strobes used during the second set with no warning at the door.'] },
+
+  { id:'canley-bakehouse', name:'Canley Night Bakehouse', type:'Late-night bakery', cuisine:'Banh mi and pastries',
+    precinct:'Canley Heights', hours:'6am – 2am, seven nights', checked:'2026-07-29',
+    blurb:'Counter service bakery. Step-free with a low counter and a picture menu.',
+    f:['step_free','wide_door','entry_late','step_free_in','wide_paths','low_counter','no_strobe','talkable','light_bright','picture_menu','large_print','comm_cards','staff_trained','animals_ok','acc_parking','taxi_close'],
+    details:{ entry:'No step. Manual door held open, 900 mm clear.', inside:'Paths 1100 mm. Counter 880 mm.',
+      toilet:'No customer toilets.', noise:'About 68 dB.', light:'Bright and even.', strobe:'No strobes.',
+      animals:'Welcome.', transport:'Canley Vale Station, no lift. Accessible parking behind the shops.' } },
+
+  { id:'gasworks', name:'The Gasworks', type:'Bar', cuisine:'Cocktails and bar snacks',
+    precinct:'Marrickville', hours:'4pm – 2am, Wed to Sun', checked:'2026-04-02',
+    blurb:'Converted warehouse bar. Step-free entry, but no accessible toilet and it is loud after 9pm.',
+    f:['step_free','wide_door','entry_late','step_free_in','wide_paths','seating_plenty','seating_move','no_strobe','light_bright','large_print','staff_trained','animals_ok','companion_card','station_lift'],
+    details:{ entry:'No step. Roller door entrance, 1500 mm wide.', inside:'Paths 1400 mm. Bar counter 1150 mm.',
+      toilet:'No accessible toilet. All toilets are up two steps at the rear.',
+      noise:'About 90 dB after 9pm.', light:'Moderate, warm. Readable but not bright.', strobe:'No strobes.',
+      animals:'Welcome.', transport:'Sydenham Station, lift until the last train. No formal rank nearby.' } },
+
+  { id:'rainbow-diner', name:'Rainbow Diner', type:'Restaurant', cuisine:'All-day diner food',
+    precinct:'Oxford St Rainbow Precinct', hours:'8am – 2am, seven nights', checked:'2026-08-11',
+    blurb:'Diner with booth and moveable seating, table service, and staff trained in Auslan basics.',
+    f:['step_free','wide_door','entry_late','step_free_in','wide_paths','seating_plenty','seating_move','acc_toilet','toilet_unlocked','transfer_left','no_strobe','talkable','light_bright','light_adjust','auslan_staff','comm_cards','large_print','picture_menu','order_written','staff_trained','animals_ok','animal_water','table_service','companion_card','taxi_close','drop_off'],
+    details:{ entry:'No step. Manual door, 880 mm clear, level threshold.', inside:'Paths 1200 mm. Counter 1050 mm but table service is available.',
+      toilet:'Accessible toilet, unlocked, grab rails, left-hand transfer, 870 mm door.',
+      noise:'About 74 dB at peak.', light:'Bright, and staff will turn the booth lights up on request.',
+      strobe:'No strobes.', animals:'Welcome. Water bowl on request.',
+      transport:'Museum Station has no lift. Rank on Taylor Square, 120 m. Step-free drop-off directly outside.' } },
+
+  { id:'burwood-karaoke', name:'Burwood Karaoke Rooms', type:'Karaoke', cuisine:'Private rooms, snacks and drinks',
+    precinct:'Burwood', hours:'6pm – 4am, seven nights', checked:'2026-02-19',
+    blurb:'Private rooms on the first floor, reached by a lift. Rooms are soundproofed from each other.',
+    f:['step_free','wide_door','entry_late','wide_paths','acc_toilet','quiet_space','talkable','light_adjust','picture_menu','order_written','animals_ok','station_lift','taxi_close'],
+    details:{ entry:'No step from the street. Lift to the first floor, 1100 mm door.',
+      inside:'Paths 1050 mm. Rooms have moveable seating. Order by tablet in the room.',
+      toilet:'Accessible toilet on the first floor. Locked outside peak hours, key at reception.',
+      noise:'Each room is separate. Your own room is as loud as you make it.',
+      light:'Adjustable in every room.', strobe:'Room lighting includes a flashing mode, which can be turned off.',
+      animals:'Welcome.', transport:'Burwood Station, lift until the last train. Rank 150 m.' } }
+];
+
+/* =============================================================
+   STATE — memory only. Nothing stored, nothing sent.
+   ============================================================= */
+const state = { needs:new Set(), features:new Set(), types:new Set(), precincts:new Set(), query:'' };
+
+const el = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ICON = {
+  yes:'<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6.2 12.5 2 8.3l1.5-1.5 2.7 2.7L12.5 3 14 4.5z" fill="currentColor"/></svg>',
+  no:'<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M12.7 4.7 11.3 3.3 8 6.6 4.7 3.3 3.3 4.7 6.6 8l-3.3 3.3 1.4 1.4L8 9.4l3.3 3.3 1.4-1.4L9.4 8z" fill="currentColor"/></svg>'
+};
+const TODAY = new Date('2026-09-11');
+const monthsSince = iso => { const d=new Date(iso);
+  return (TODAY.getFullYear()-d.getFullYear())*12 + (TODAY.getMonth()-d.getMonth()); };
+const fmtDate = iso => new Date(iso).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+
+const TYPES = [...new Set(VENUES.map(v => v.type))].sort();
+const PRECINCTS = [...new Set(VENUES.map(v => v.precinct))].sort();
+
+/* Needs -> the features they tick for you */
+function neededFeatures(){
+  const set = new Set();
+  state.needs.forEach(n => {
+    const need = NEEDS.find(x => x.id === n);
+    if(need) need.features.forEach(f => set.add(f));
+  });
+  return set;
+}
+
+/* Hard filters (checkboxes, type, precinct, search) decide what shows.
+   Needs decide the ORDER and what gaps are called out. */
+function passesHardFilters(v){
+  for(const f of state.features) if(!v.f.includes(f)) return false;
+  if(state.types.size && !state.types.has(v.type)) return false;
+  if(state.precincts.size && !state.precincts.has(v.precinct)) return false;
+  if(state.query){
+    const hay = (v.name+' '+v.type+' '+v.cuisine+' '+v.precinct+' '+v.blurb).toLowerCase();
+    if(!hay.includes(state.query.toLowerCase())) return false;
+  }
+  return true;
+}
+
+function scoreFor(v, wanted){
+  const met = [...wanted].filter(f => v.f.includes(f));
+  const missing = [...wanted].filter(f => !v.f.includes(f));
+  return { met, missing, total:wanted.size };
+}
+
+/* =============================================================
+   VIEWS
+   ============================================================= */
+function viewHome(){
+  return `
+  <div class="hero">
+    <div class="wrap">
+      <h1>Every venue in a Purple Flag precinct, with the access details written down</h1>
+      <p>Not a rating. A list of what is actually there — the step at the door, whether the toilet is
+        unlocked, how loud it gets, whether the lift still runs when you want to go home.</p>
+      <p style="margin-top:1.5rem"><a class="btn" style="background:#fff;color:#441170;border-color:#fff" href="#/browse">Browse all venues</a></p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h2 id="needs-title">Start with what you need</h2>
+    <p>Pick anything that applies. We use it to tick the matching features for you and put the best
+      matches first — you&rsquo;ll see exactly which features were chosen and you can change them.
+      This is optional, nothing is saved, and you can browse everything without it.</p>
+
+    <form id="needs-form">
+      <ul class="needs" aria-labelledby="needs-title">
+        ${NEEDS.map(n => `
+          <li class="need">
+            <label>
+              <input type="checkbox" name="need" value="${n.id}" ${state.needs.has(n.id)?'checked':''}>
+              <span>
+                <span class="need-name">${esc(n.name)}</span>
+                <span class="need-eg">${esc(n.eg)}</span>
+              </span>
+            </label>
+          </li>`).join('')}
+      </ul>
+      <p style="margin-top:1.5rem; display:flex; gap:.75rem; flex-wrap:wrap">
+        <a class="btn" href="#/browse">See matching venues</a>
+        <a class="btn btn-2" href="#/browse">Skip — show me everything</a>
+      </p>
+    </form>
+
+    <div class="notice" style="margin-top:2rem">
+      <p>Student prototype, not a NSW Government service.</p>
+      <p>All ${VENUES.length} venues below are invented, along with their measurements and photos.</p>
+    </div>
+
+    <h2>What&rsquo;s recorded for every venue</h2>
+    <p>The same fields for every venue, so you can compare them. Where a venue does not have something,
+      it says so plainly instead of leaving it out.</p>
+    <ul>
+      <li><strong>What it is</strong> — restaurant, bar, pub, club, live music, dessert shop, karaoke.</li>
+      <li><strong>Getting in</strong> — steps and their height in cm, door width, ramp gradient, whether the accessible entrance stays unlocked at night.</li>
+      <li><strong>Inside</strong> — narrowest path, counter height, seating, step-free routes.</li>
+      <li><strong>Toilets</strong> — accessible or not, locked or not, which side you transfer from.</li>
+      <li><strong>Sound and light</strong> — noise in decibels at peak, strobes, how bright it is.</li>
+      <li><strong>Communication</strong> — hearing loop, Auslan, large print, braille, picture menus.</li>
+      <li><strong>Getting home</strong> — nearest station, whether the lift still runs late, taxi ranks.</li>
+      <li><strong>Photos</strong> — the entrance, the route inside, the accessible toilet. Not marketing shots.</li>
+      <li><strong>A date</strong> — when someone last checked.</li>
+    </ul>
+  </div>`;
+}
+
+function featureFilterMarkup(){
+  const wanted = neededFeatures();
+  return FEATURE_GROUPS.map(g => {
+    const anyOpen = g.ids.some(id => state.features.has(id) || wanted.has(id));
+    return `
+    <details class="group"${anyOpen?' open':''}>
+      <summary>${esc(g.label)}</summary>
+      <div class="group-body">
+        ${g.ids.map(id => `
+          <label class="check">
+            <input type="checkbox" name="feature" value="${id}" ${state.features.has(id)?'checked':''}>
+            <span>${esc(FEATURES[id])}</span>
+          </label>`).join('')}
+      </div>
+    </details>`;
+  }).join('');
+}
+
+function viewBrowse(){
+  const wanted = neededFeatures();
+  return `
+  <div class="wrap">
+    <h1 tabindex="-1" id="page-title">All venues</h1>
+    <p>${VENUES.length} venues across ${PRECINCTS.length} Purple Flag precincts.</p>
+
+    <div class="app">
+      <form id="filters" onsubmit="return false" aria-labelledby="filters-title">
+        <h2 id="filters-title" style="margin-top:0">Filter</h2>
+
+        ${wanted.size ? `
+        <div class="yours">
+          <h2>Based on what you told us</h2>
+          <p style="margin:0">We&rsquo;re looking for these ${wanted.size} features and putting the closest
+            matches first. Venues that miss some still show, with the gap named.</p>
+          <ul class="tags">
+            ${[...wanted].map(f => `<li class="tag">${esc(FEATURES[f])}</li>`).join('')}
+          </ul>
+          <p style="margin:.85rem 0 0"><a href="#/">Change what you need</a></p>
+        </div>` : `
+        <div class="card" style="margin-bottom:1.25rem">
+          <p style="margin:0"><a href="#/">Tell us what you need</a> and we&rsquo;ll sort these venues
+            by how well they match.</p>
+        </div>`}
+
+        <div class="actions">
+          <button type="button" class="btn btn-2 btn-sm" id="clear-all">Clear all filters</button>
+        </div>
+
+        <fieldset>
+          <legend><label for="q">Search by name or food</label></legend>
+          <input type="search" id="q" value="${esc(state.query)}" placeholder="e.g. Vietnamese, karaoke">
+        </fieldset>
+
+        <fieldset>
+          <legend>Type of venue</legend>
+          ${TYPES.map(t => `
+            <label class="check">
+              <input type="checkbox" name="type" value="${esc(t)}" ${state.types.has(t)?'checked':''}>
+              <span>${esc(t)}</span>
+            </label>`).join('')}
+        </fieldset>
+
+        <fieldset>
+          <legend>Purple Flag precinct</legend>
+          ${PRECINCTS.map(p => `
+            <label class="check">
+              <input type="checkbox" name="precinct" value="${esc(p)}" ${state.precincts.has(p)?'checked':''}>
+              <span>${esc(p)}</span>
+            </label>`).join('')}
+        </fieldset>
+
+        <fieldset>
+          <legend>Accessibility features</legend>
+          <p class="hint">Ticking these hides venues that don&rsquo;t have them.</p>
+          ${featureFilterMarkup()}
+        </fieldset>
+      </form>
+
+      <section aria-labelledby="results-title">
+        <h2 id="results-title" style="margin-top:0">Venues</h2>
+        <p class="count" role="status" aria-live="polite" id="count"></p>
+        <div id="results"></div>
+      </section>
+    </div>
+  </div>`;
+}
+
+function photoStrip(v){
+  return `<div class="strip">
+    <div class="photo-ph">Photo: entrance from the footpath at night</div>
+    <div class="photo-ph">Photo: route from the door to the counter</div>
+    <div class="photo-ph">Photo: ${v.f.includes('acc_toilet') ? 'the accessible toilet' : 'the toilet entrance'}</div>
+  </div>`;
+}
+
+function venueCard(v){
+  const wanted = neededFeatures();
+  const { met, missing, total } = scoreFor(v, wanted);
+  const months = monthsSince(v.checked);
+  const stale = months >= 12;
+
+  let matchBlock = '';
+  if(total){
+    const cls = missing.length === 0 ? 'match-full' : met.length === 0 ? 'match-none' : 'match-part';
+    matchBlock = `
+      <p class="match ${cls}">Meets ${met.length} of your ${total} needs</p>
+      ${missing.length ? `<p class="match-detail">Missing: ${missing.map(f => esc(FEATURES[f].toLowerCase())).join(', ')}.</p>` : ''}`;
+  }
+
+  const headline = [
+    { on:v.f.includes('step_free'), yes:'Step-free entry', no:'Steps at the entrance' },
+    { on:v.f.includes('acc_toilet'), yes:'Accessible toilet', no:'No accessible toilet' },
+    { on:v.f.includes('no_strobe'), yes:'No strobe lighting', no:'Uses strobe lighting' },
+    { on:v.f.includes('talkable'), yes:'Quiet enough to talk', no:'Too loud for conversation' }
+  ].map(c => `<li class="chip ${c.on?'chip-yes':'chip-no'}">${c.on?ICON.yes:ICON.no}<span>${esc(c.on?c.yes:c.no)}</span></li>`).join('');
+
+  return `
+  <article class="venue">
+    <h3><a href="#/venue/${v.id}">${esc(v.name)}</a></h3>
+    <p class="meta"><span class="type">${esc(v.type)}</span> ${esc(v.cuisine)} &middot; ${esc(v.precinct)} &middot; ${esc(v.hours)}</p>
+    ${matchBlock}
+    ${photoStrip(v)}
+    <p>${esc(v.blurb)}</p>
+    <ul class="chips">${headline}</ul>
+    <p class="checked${stale?' stale':''}">Last checked ${fmtDate(v.checked)}${stale?` — ${months} months ago`:''}.
+      ${v.reports?`${v.reports.length} visitor report${v.reports.length>1?'s':''} outstanding.`:''}</p>
+  </article>`;
+}
+
+function viewVenue(id){
+  const v = VENUES.find(x => x.id === id);
+  if(!v) return `<div class="wrap"><h1 tabindex="-1" id="page-title">Venue not found</h1>
+    <p><a href="#/browse">Back to all venues</a></p></div>`;
+
+  const months = monthsSince(v.checked);
+  const stale = months >= 12;
+  const d = v.details;
+
+  const groupLists = FEATURE_GROUPS.map(g => `
+    <h3>${esc(g.label)}</h3>
+    <ul class="chips">
+      ${g.ids.map(id2 => {
+        const on = v.f.includes(id2);
+        return `<li class="chip ${on?'chip-yes':'chip-no'}">${on?ICON.yes:ICON.no}<span>${esc(FEATURES[id2])}</span></li>`;
+      }).join('')}
+    </ul>`).join('');
+
+  return `
+  <div class="wrap">
+    <p><a class="back" href="#/browse">&#8592; Back to all venues</a></p>
+    <h1 tabindex="-1" id="page-title">${esc(v.name)}</h1>
+    <p class="meta"><span class="type">${esc(v.type)}</span> ${esc(v.cuisine)} &middot;
+      ${esc(v.precinct)} Purple Flag precinct &middot; ${esc(v.hours)}</p>
+    <p>${esc(v.blurb)}</p>
+
+    ${photoStrip(v)}
+    <p class="hint">In a real build these are photos taken by the venue or an assessor, with a tape
+      measure visible for door widths and step heights.</p>
+
+    <p class="checked${stale?' stale':''}">Last checked ${fmtDate(v.checked)}${stale?` — ${months} months ago, treat with care`:''}.</p>
+    ${v.reports ? `<div class="notice">${v.reports.map(r => `<p>Visitor report — ${esc(r)}</p>`).join('')}</div>` : ''}
+
+    <h2>The details</h2>
+    <dl class="facts">
+      <div><dt>Getting in</dt><dd>${esc(d.entry)}</dd></div>
+      <div><dt>Inside</dt><dd>${esc(d.inside)}</dd></div>
+      <div><dt>Toilets</dt><dd>${esc(d.toilet)}</dd></div>
+      <div><dt>Assistance animals</dt><dd>${esc(d.animals)}</dd></div>
+    </dl>
+
+    <div class="panel panel-night" style="margin-top:2rem">
+      <h2>After dark</h2>
+      <dl class="facts">
+        <div><dt>How loud it gets</dt><dd>${esc(d.noise)}</dd></div>
+        <div><dt>Lighting</dt><dd>${esc(d.light)}</dd></div>
+        <div><dt>Strobes and flashing lights</dt><dd>${esc(d.strobe)}</dd></div>
+        <div><dt>Accessible entrance at night</dt>
+          <dd>${v.f.includes('entry_late') ? 'Open whenever the venue is trading.' : 'Not guaranteed to be open all trading hours.'}</dd></div>
+        <div><dt>Getting home</dt><dd>${esc(d.transport)}</dd></div>
+      </dl>
+    </div>
+
+    <h2>Everything we record</h2>
+    <p>The same checklist for every venue. A cross means the venue does not have it — not that we
+      didn&rsquo;t ask.</p>
+    ${groupLists}
+
+    <h2>Something here wrong?</h2>
+    <p>Tell us and we pass it to the venue. No account needed.</p>
+    <form id="report-form" novalidate>
+      <div id="report-error" role="alert"></div>
+      <p><label class="field" for="report-text" style="font-weight:600; display:block; margin-bottom:.35rem">What did you find?</label>
+        <textarea id="report-text" style="font:inherit;width:100%;min-height:7rem;padding:.65rem;border:1px solid var(--ink-soft);border-radius:var(--radius)" aria-describedby="report-help"></textarea>
+        <span class="hint" id="report-help">For example: the accessible entrance was locked, or the toilet was full of stock.</span></p>
+      <button class="btn" type="submit">Send report</button>
+      <p id="report-done" role="status" aria-live="polite"></p>
+    </form>
+  </div>`;
+}
+
+function viewAbout(){
+  return `
+  <div class="wrap">
+    <h1 tabindex="-1" id="page-title">About this prototype</h1>
+    <p>A redesign of the NSW Purple Flag program so it covers individual venues, not just precincts.
+      Purple Flag currently accredits precincts and is aimed at councils, so a precinct can hold a
+      Purple Flag and still contain venues you physically cannot enter.</p>
+
+    <h2>How the needs picker works, and why</h2>
+    <p>You can tell the site what you need. It turns that into a list of features, shows you the list,
+      and lets you change it. It sorts results by match instead of hiding things, and names what each
+      venue is missing.</p>
+    <p>Three rules behind that:</p>
+    <ul>
+      <li><strong>Nothing is hidden silently.</strong> If a venue misses two of your five needs, you see
+        it and you see which two. Hiding it would mean you never learn why.</li>
+      <li><strong>No diagnosis required.</strong> The needs are written as situations, not conditions,
+        and the whole directory works without picking any.</li>
+      <li><strong>Nothing is stored.</strong> No account, no login, no record of what you picked.
+        It lives in the page until you close it.</li>
+    </ul>
+
+    <h2>No overall score</h2>
+    <p>The site never rates a venue as more or less accessible. A venue can be excellent for a
+      wheelchair user and unusable for an autistic patron — one number hides exactly the thing you
+      need to know. The facts are published and you decide.</p>
+
+    <h2>How this meets WCAG 2.2 Level AA</h2>
+    <table>
+      <caption>Design decision, success criterion, Universal Design principle</caption>
+      <thead><tr><th scope="col">Decision</th><th scope="col">WCAG 2.2</th><th scope="col">UD principle</th></tr></thead>
+      <tbody>
+        <tr><td>Every control is at least 44&times;44 px</td><td>2.5.8 Target Size (new in 2.2)</td><td>Size and space for approach</td></tr>
+        <tr><td>No drag-only controls. Filters are checkboxes, never sliders</td><td>2.5.7 Dragging Movements (new)</td><td>Low physical effort</td></tr>
+        <tr><td>Nothing is fixed or sticky, so focus is never covered</td><td>2.4.11 Focus Not Obscured (new)</td><td>Perceptible information</td></tr>
+        <tr><td>Display settings and help sit in the same place on every page</td><td>3.2.6 Consistent Help (new)</td><td>Simple and intuitive use</td></tr>
+        <tr><td>No login or CAPTCHA to search, browse or report a problem</td><td>3.3.8 Accessible Authentication (new)</td><td>Equitable use</td></tr>
+        <tr><td>Filters survive opening a venue and coming back</td><td>3.3.7 Redundant Entry (new)</td><td>Low physical effort</td></tr>
+        <tr><td>Every yes or no is an icon and a word, never colour alone</td><td>1.4.1 Use of Colour</td><td>Perceptible information</td></tr>
+        <tr><td>Text resizes to 200% and reflows to one column</td><td>1.4.4, 1.4.10 Reflow</td><td>Flexibility in use</td></tr>
+        <tr><td>Result counts and form outcomes are announced</td><td>4.1.3 Status Messages</td><td>Perceptible information</td></tr>
+        <tr><td>Errors name the field and say how to fix it</td><td>3.3.1, 3.3.3 Error Suggestion</td><td>Tolerance for error</td></tr>
+        <tr><td>Access information is in the main listing, not a separate page</td><td>&mdash;</td><td>Equitable use</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Beyond WCAG</h2>
+    <p>WCAG is a floor and covers almost nothing for cognitive and learning disability. A real build
+      would add plain language throughout plus an Easy Read version, Auslan video on key pages, and
+      translated content — the precincts include Canley Vale, Canley Heights, Lakemba and Haymarket,
+      so Vietnamese, Arabic and Chinese are not optional extras.</p>
+
+    <h2>Data honesty</h2>
+    <p>Every venue here is invented. Measurements are indicative and simplified; a real build would
+      need an access consultant to confirm the AS 1428.1 benchmarks. Listings carry a
+      &ldquo;last checked&rdquo; date and go stale visibly rather than pretending to be current.</p>
+  </div>`;
+}
+
+function viewHelp(){
+  return `
+  <div class="wrap">
+    <h1 tabindex="-1" id="page-title">Help and contact</h1>
+    <p>More than one way to reach us, because a single email address is not a contact method.</p>
+    <ul>
+      <li><strong>Phone</strong> — a staffed number, so you can ask a person about a specific venue.</li>
+      <li><strong>Email</strong> — for anything that is not urgent.</li>
+      <li><strong>National Relay Service</strong> — for people who are Deaf or have a speech or hearing impairment.</li>
+      <li><strong>Auslan video call</strong> — booked through an interpreting service.</li>
+      <li><strong>Translating and Interpreting Service</strong> — 131 450, free, 24 hours.</li>
+      <li><strong>Report a listing</strong> — the form at the bottom of any venue page.</li>
+    </ul>
+    <p>This is a prototype, so these are listed to show what the contact section needs to contain
+      rather than being working links.</p>
+  </div>`;
+}
+
+/* =============================================================
+   RESULTS
+   ============================================================= */
+function renderResults(){
+  const results = el('#results'), count = el('#count');
+  if(!results || !count) return;
+
+  const wanted = neededFeatures();
+  let list = VENUES.filter(passesHardFilters);
+
+  if(wanted.size){
+    list = list.map(v => ({ v, s:scoreFor(v, wanted) }))
+               .sort((a,b) => b.s.met.length - a.s.met.length || a.v.name.localeCompare(b.v.name))
+               .map(x => x.v);
+  } else {
+    list = list.sort((a,b) => a.name.localeCompare(b.name));
+  }
+
+  count.textContent = list.length === 1 ? '1 venue' : `${list.length} venues`;
+
+  if(!list.length){
+    results.innerHTML = `<div class="card">
+      <h3 style="margin-top:0">Nothing matches everything you ticked</h3>
+      <p>Try removing one of the accessibility features. Hearing loops, braille menus and Auslan-trained
+        staff narrow the list fastest.</p>
+      <button type="button" class="btn btn-2" id="clear-empty">Clear all filters</button></div>`;
+    const b = el('#clear-empty'); if(b) b.addEventListener('click', clearAll);
+    return;
+  }
+  results.innerHTML = list.map(venueCard).join('');
+}
+
+function clearAll(){
+  state.features.clear(); state.types.clear(); state.precincts.clear(); state.query='';
+  document.querySelectorAll('#filters input[type="checkbox"]').forEach(c => { c.checked = false; });
+  const q = el('#q'); if(q) q.value = '';
+  renderResults();
+  const f = el('#filters'); if(f) f.querySelector('button,input').focus();
+}
+
+/* =============================================================
+   REGISTER — a venue self-assesses. This does NOT create a public
+   listing. It creates a draft profile marked "not yet verified".
+   Nothing reaches the directory until an assessor signs it off,
+   which is the whole point of the thing.
+   ============================================================= */
+const REG_STAGES = [
+  { n:'1', t:'You self-assess', d:'You tick what your venue already has and add the measurements. Takes about 20 minutes with a tape measure. Free, and you can save nothing and come back — there is no time limit.' },
+  { n:'2', t:'An assessor visits', d:'A trained pair visits at trading hours and checks what you recorded. Where you and the assessor disagree, the assessor\u2019s figure is the one published. You get the full report either way.' },
+  { n:'3', t:'People with disability field-test it', d:'Paid assessors with lived experience do a real visit \u2014 arrive, get in, be there, get home \u2014 and sign off the profile.' },
+  { n:'4', t:'You go live', d:'Your profile publishes with the date it was checked, and you get a window decal and table QR codes. Re-checked every two years, or sooner if visitors flag a discrepancy.' }
+];
+
+const REG_EVIDENCE = {
+  'Getting in':             'Width of the narrowest doorway, height of any step, ramp length and rise.',
+  'Moving around inside':   'Narrowest path width, counter height, whether there is a lift.',
+  'Toilets':               'Door width, which side the transfer space is on, where the key is kept.',
+  'Sound and light':        'Rough noise level at peak, whether strobes are used and when.',
+  'Communication':          'Which formats you have, and whether staff know where they are kept.',
+  'Staff and service':      'Who ran the training and when.',
+  'Getting there and home': 'Distance to the nearest accessible parking bay and taxi rank, in metres.'
+};
+
+function viewRegister(){
+  return `<div class="wrap">
+    <h1 tabindex="-1" id="page-title">List your venue</h1>
+    <p class="lede">Free to register. You record what your venue already has, an assessor
+      checks it, and then it publishes. Venues in a Purple Flag precinct can also apply for
+      grant funding to fix what the assessment turns up.</p>
+
+    <div class="notice" style="margin-bottom:2rem">
+      <p>Filling in this form does not put your venue on the directory.</p>
+      <p>It creates a draft profile marked <strong>not yet verified</strong>. Nothing is shown
+        to the public until an assessor has been and checked it in person.</p>
+    </div>
+
+    <h2>How it works</h2>
+    <ol class="facts" style="padding:0;list-style:none;margin:0 0 2.5rem">
+      ${REG_STAGES.map(s => `<li style="border-top:1px solid var(--line);padding:1rem 0">
+        <h3 style="margin:0 0 .3rem">Step ${s.n}. ${esc(s.t)}</h3>
+        <p style="margin:0">${esc(s.d)}</p></li>`).join('')}
+    </ol>
+
+    <form id="reg-form" novalidate>
+      <div id="reg-error" role="alert"></div>
+
+      <h2>About the venue</h2>
+      <fieldset>
+        <p><label for="reg-name"><strong>Venue name</strong> (required)</label><br>
+          <input type="text" id="reg-name" name="reg-name" autocomplete="organization" style="font:inherit;width:100%;max-width:30rem;padding:.6rem;border:1px solid var(--ink-soft);border-radius:var(--radius)"></p>
+
+        <p><label for="reg-email"><strong>Contact email</strong> (required)</label><br>
+          <input type="email" id="reg-email" name="reg-email" autocomplete="email" aria-describedby="reg-email-help" style="font:inherit;width:100%;max-width:30rem;padding:.6rem;border:1px solid var(--ink-soft);border-radius:var(--radius)"><br>
+          <span class="hint" id="reg-email-help">We only use this to book the assessment visit.</span></p>
+
+        <p><label for="reg-type"><strong>Type of venue</strong></label><br>
+          <select id="reg-type" style="font:inherit;padding:.6rem;border:1px solid var(--ink-soft);border-radius:var(--radius)">
+            ${TYPES.map(t => `<option>${esc(t)}</option>`).join('')}
+          </select></p>
+
+        <p><label for="reg-precinct"><strong>Purple Flag precinct</strong></label><br>
+          <select id="reg-precinct" style="font:inherit;padding:.6rem;border:1px solid var(--ink-soft);border-radius:var(--radius)">
+            ${PRECINCTS.map(p => `<option>${esc(p)}</option>`).join('')}
+          </select></p>
+
+        <p><label for="reg-hours"><strong>Trading hours</strong></label><br>
+          <input type="text" id="reg-hours" placeholder="e.g. 5pm – 1am, seven nights" style="font:inherit;width:100%;max-width:30rem;padding:.6rem;border:1px solid var(--ink-soft);border-radius:var(--radius)"></p>
+      </fieldset>
+
+      <h2>What your venue already has</h2>
+      <p>Tick only what is true today. Leaving something unticked costs you nothing \u2014 the
+        directory never scores venues or ranks them, it just records what is there. Ticking
+        something you do not have is the one thing that causes real harm, because someone will
+        travel across the city for it.</p>
+      <p>Where you are unsure, leave it blank and note it in the box. The assessor will measure it.</p>
+
+      ${FEATURE_GROUPS.map((g, i) => `
+        <fieldset style="border-top:1px solid var(--line);padding-top:1rem">
+          <legend><strong>${esc(g.label)}</strong></legend>
+          ${g.ids.map(id => `
+            <label class="check">
+              <input type="checkbox" name="reg-feature" value="${esc(id)}">
+              <span>${esc(FEATURES[id])}</span>
+            </label>`).join('')}
+          <p style="margin-top:.75rem"><label for="reg-ev-${i}">Measurements and notes</label><br>
+            <textarea id="reg-ev-${i}" aria-describedby="reg-ev-help-${i}"
+              style="font:inherit;width:100%;max-width:40rem;min-height:5rem;padding:.6rem;border:1px solid var(--ink-soft);border-radius:var(--radius)"></textarea><br>
+            <span class="hint" id="reg-ev-help-${i}">${esc(REG_EVIDENCE[g.label] || '')} Write down the number, not a judgement \u2014 &ldquo;two steps, 150 mm each&rdquo; is useful, &ldquo;partly accessible&rdquo; is not.</span></p>
+          <div class="photo-ph" role="img" aria-label="Where a photo of this area would be uploaded">Photo upload<br><span class="hint">In a real build: a photo of this area, with a tape measure in shot.</span></div>
+        </fieldset>`).join('')}
+
+      <h2>Before you send this</h2>
+      <fieldset>
+        <label class="check"><input type="checkbox" id="reg-d1">
+          <span>I understand this profile will not be published until an assessor has visited and checked it. (required)</span></label>
+        <label class="check"><input type="checkbox" id="reg-d2">
+          <span>I agree to an assessor visiting during trading hours, and to a field test by assessors with lived experience of disability. (required)</span></label>
+        <label class="check"><input type="checkbox" id="reg-d3">
+          <span>I will keep this information current, and update it within 14 days if anything changes. (required)</span></label>
+        <label class="check"><input type="checkbox" id="reg-d4">
+          <span>I would like information about grant funding to improve what the assessment finds. (optional)</span></label>
+      </fieldset>
+
+      <p><button class="btn" type="submit">Create draft profile</button></p>
+    </form>
+
+    <div id="reg-done" tabindex="-1"></div>
+  </div>`;
+}
+
+function wireRegister(){
+  const form = el('#reg-form');
+  if(!form) return;
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const errBox = el('#reg-error');
+    const name  = el('#reg-name').value.trim();
+    const email = el('#reg-email').value.trim();
+    const problems = [];
+
+    if(!name)  problems.push({ id:'reg-name',  msg:'Enter the venue name.' });
+    if(!email) problems.push({ id:'reg-email', msg:'Enter a contact email so we can book the assessment.' });
+    else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      problems.push({ id:'reg-email', msg:'That email address is missing an @ or a domain. Check it and try again.' });
+    ['reg-d1','reg-d2','reg-d3'].forEach(id => {
+      if(!el('#'+id).checked) problems.push({ id, msg:'Tick this to continue \u2014 verification is how the directory stays trustworthy.' });
+    });
+
+    if(problems.length){
+      errBox.innerHTML = `<div class="notice" style="margin-bottom:1.5rem">
+        <p>There ${problems.length === 1 ? 'is 1 thing' : 'are ' + problems.length + ' things'} to fix before this can be sent.</p>
+        <ul style="margin:.5rem 0 0">${problems.map(p =>
+          `<li><a href="#${p.id}" data-fix="${p.id}">${esc(p.msg)}</a></li>`).join('')}</ul></div>`;
+      errBox.querySelectorAll('[data-fix]').forEach(a => {
+        a.addEventListener('click', ev => {
+          ev.preventDefault();
+          const t = el('#' + a.dataset.fix);
+          if(t) t.focus();
+        });
+      });
+      errBox.setAttribute('tabindex','-1');
+      errBox.focus({preventScroll:false});
+      return;
+    }
+
+    const ticked = [...document.querySelectorAll('input[name="reg-feature"]:checked')].map(c => c.value);
+    errBox.innerHTML = '';
+    form.hidden = true;
+
+    const done = el('#reg-done');
+    done.innerHTML = `
+      <h2 style="margin-top:0">Draft profile created</h2>
+      <div class="panel" style="margin-bottom:1.5rem">
+        <p style="margin:0 0 .5rem"><strong>${esc(name)}</strong> \u2014 ${esc(el('#reg-precinct').value)}</p>
+        <p style="margin:0 0 .75rem">Status: <strong>Self-assessed, not yet verified</strong></p>
+        <p style="margin:0">You recorded <strong>${ticked.length}</strong> of ${Object.keys(FEATURES).length}
+          things. This profile is not visible to the public and will not appear in search results.</p>
+      </div>
+      <h3>What happens next</h3>
+      <ol>
+        <li>We email ${esc(email)} within five working days to book the assessment visit.</li>
+        <li>The assessor checks what you recorded and measures anything you left blank. You get the
+          full report, including anything that did not match.</li>
+        <li>Assessors with lived experience field-test the venue during trading hours.</li>
+        <li>Your profile publishes with the date it was checked, and you get your decal and QR codes.</li>
+      </ol>
+      <p class="hint">Prototype only. Nothing was sent and nothing was stored.</p>
+      <p><a class="btn btn-2" href="#/browse">See what a verified profile looks like</a></p>`;
+    done.focus({preventScroll:false});
+  });
+}
+
+/* =============================================================
+   ROUTING
+   ============================================================= */
+const ROUTES = {
+  '':      { title:'Venue accessibility directory', render:viewHome },
+  'browse':{ title:'All venues', render:viewBrowse },
+  'register':{ title:'List your venue', render:viewRegister },
+  'about': { title:'About this prototype', render:viewAbout },
+  'help':  { title:'Help and contact', render:viewHelp }
+};
+
+function render(){
+  const raw = location.hash.replace(/^#\/?/,'');
+  const [key='', param=null] = raw.split('/').filter(Boolean).length ? raw.split('/').filter(Boolean) : [''];
+  const view = el('#view');
+
+  if(key === 'venue' && param){
+    const v = VENUES.find(x => x.id === param);
+    view.innerHTML = viewVenue(param);
+    document.title = (v ? v.name : 'Venue not found') + ' — Purple Flag Access';
+    wireVenue();
+  } else if(ROUTES[key]){
+    view.innerHTML = ROUTES[key].render();
+    document.title = ROUTES[key].title + ' — Purple Flag Access';
+    if(key === '') wireNeeds();
+    if(key === 'browse'){ wireFilters(); renderResults(); }
+    if(key === 'register') wireRegister();
+  } else {
+    view.innerHTML = `<div class="wrap"><h1 tabindex="-1" id="page-title">Page not found</h1>
+      <p><a href="#/">Go to the home page</a></p></div>`;
+    document.title = 'Page not found — Purple Flag Access';
+  }
+
+  document.querySelectorAll('nav.primary a').forEach(a => {
+    const t = a.getAttribute('href').replace(/^#\/?/,'');
+    if(t === key) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+  });
+
+  const h = el('#page-title') || el('main');
+  if(h){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); }
+  window.scrollTo(0,0);
+  el('#route-status').textContent = document.title.split(' — ')[0] + ' loaded';
+}
+
+function wireNeeds(){
+  document.querySelectorAll('input[name="need"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if(cb.checked) state.needs.add(cb.value); else state.needs.delete(cb.value);
+    });
+  });
+}
+
+function wireFilters(){
+  const bind = (name, set) => document.querySelectorAll(`input[name="${name}"]`).forEach(cb => {
+    cb.addEventListener('change', () => {
+      if(cb.checked) set.add(cb.value); else set.delete(cb.value);
+      renderResults();
+    });
+  });
+  bind('feature', state.features);
+  bind('type', state.types);
+  bind('precinct', state.precincts);
+
+  const q = el('#q');
+  if(q){
+    let t;
+    q.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(() => { state.query = q.value.trim(); renderResults(); }, 250);
+    });
+  }
+  const c = el('#clear-all'); if(c) c.addEventListener('click', clearAll);
+}
+
+function wireVenue(){
+  const form = el('#report-form'); if(!form) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const box = el('#report-text'), err = el('#report-error'), done = el('#report-done');
+    err.innerHTML = ''; done.textContent = '';
+    if(!box.value.trim()){
+      err.innerHTML = `<p style="border-left:5px solid var(--stop-ink);background:var(--stop-bg);
+        color:var(--stop-ink);padding:.75rem 1rem;font-weight:600">Add a short description before
+        sending. Tell us what you found — for example, the entrance was locked.</p>`;
+      box.setAttribute('aria-invalid','true'); box.focus(); return;
+    }
+    box.removeAttribute('aria-invalid');
+    done.innerHTML = `<span style="border-left:5px solid var(--ok-ink);background:var(--ok-bg);
+      color:var(--ok-ink);padding:.75rem 1rem;font-weight:600;display:block">Report sent. This is a
+      prototype, so nothing was actually submitted.</span>`;
+    box.value = '';
+  });
+}
+
+/* display settings */
+document.querySelectorAll('[data-textsize]').forEach(b => b.addEventListener('click', () => {
+  document.documentElement.setAttribute('data-textsize', b.dataset.textsize);
+  document.querySelectorAll('[data-textsize]').forEach(x => x.setAttribute('aria-pressed', String(x===b)));
+}));
+document.querySelectorAll('[data-contrast]').forEach(b => b.addEventListener('click', () => {
+  document.documentElement.setAttribute('data-contrast', b.dataset.contrast);
+  document.querySelectorAll('[data-contrast]').forEach(x => x.setAttribute('aria-pressed', String(x===b)));
+}));
+
+window.addEventListener('hashchange', render);
+document.documentElement.setAttribute('data-textsize','normal');
+document.documentElement.setAttribute('data-contrast','normal');
+render();
+</script>
+</body>
+</html>

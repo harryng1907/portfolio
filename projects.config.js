@@ -24,6 +24,7 @@ window.PROJECTS = {
       locked:false,
       links:[
         { label:'Try the live app', href:'https://pool-app-gules.vercel.app', primary:true },
+        { label:'View code', href:'https://github.com/harryng1907/pool-app' },
       ],
       metrics:[
         {k:'national final',v:'3rd'},
@@ -138,6 +139,9 @@ window.PROJECTS = {
       cover:'assets/grader/architecture.png',
       coverFit:'contain',
       coverPosition:'left top',
+      links:[
+        { label:'View code', href:'https://github.com/harryng1907/chamdiembangllm' },
+      ],
       locked:false,
       metrics:[
         {k:'LLM',v:'Qwen3 4B'},
@@ -172,6 +176,9 @@ window.PROJECTS = {
       cover:'assets/weather/seasonality.png',
       coverFit:'contain',
       coverPosition:'center center',
+      links:[
+        { label:'View code', href:'https://github.com/harryng1907/DuBaoThoiTiet' },
+      ],
       locked:false,
       metrics:[
         {k:'next-day MAE',v:'0.62 °C'},
@@ -213,6 +220,83 @@ window.PROJECTS = {
         approach:'Cleansed the telemetry dataset (missing values, IQR outlier removal), then built OLS, Random Forest and XGBoost models, evaluated with cross-validation, MAE and R². Applied SHAP to interpret the key drivers.',
         result:'Translated the drivers into actionable lap-time insights and built a COBYLA optimisation framework to simulate optimal driver actions, communicated back to the project team.',
         stack:['Python','Scikit-Learn','XGBoost','SHAP','SciPy (COBYLA)'],
+      },
+    },
+    {
+      id:'access-4-all',
+      category:'competition',
+      featured:false,
+      status:'Prototype',
+      year:'2026',
+      title:'Purple Flag Access: Venue Accessibility Directory',
+      blurb:'A competition prototype listing what is actually at each night-time venue (the step at the door, the toilet, the noise) instead of a vague accessibility rating.',
+      role:'Competition entry · Sep 2026 · didn’t progress, still proud of it',
+      tags:['Accessibility','WCAG 2.2','UX research','HTML/CSS/JS'],
+      accent:'client',
+      cover:'assets/access/home.jpg',
+      coverPosition:'left top',
+      locked:false,
+      links:[
+        { label:'Open the live prototype', href:'demos/access-4-all/', primary:true },
+        { label:'View code', href:'https://github.com/harryng1907/Access-4-All' },
+      ],
+      metrics:[
+        {k:'WCAG level',v:'2.2 AA'},
+        {k:'access needs',v:'8'},
+        {k:'precincts',v:'9'},
+        {k:'dependencies',v:'0'},
+      ],
+      case:{
+        problem:'Star ratings and a wheelchair icon don’t tell you whether you can actually get in, use the toilet, or cope with the noise, and late at night those details matter more. The brief was night-time venues in NSW Purple Flag precincts.',
+        approach:[
+          'Records facts, never a score: door widths, step heights, counter height, toilet access, noise and lighting, and what changes after dark.',
+          'A needs picker (“I use a wheelchair”, “Loud places are hard for me”…) maps 8 kinds of need to specific features, ranks venues by how many they meet, and names the gaps instead of hiding venues.',
+          'Built to WCAG 2.2 AA and beyond: text-size and high-contrast switches, skip links, visible focus, and plain-language copy for cognitive accessibility.',
+          'Flows for venues to create a draft profile and for visitors to report something that’s wrong, styled on the NSW Design System.',
+        ],
+        result:'A working single-file prototype with 12 sample venues across 9 precincts. The venues are invented and labelled as such. It didn’t make the next round, but it’s the project where I learned the most about designing for real access needs.',
+        galleryCols:1,
+        gallery:[
+          { src:'assets/access/results.jpg', caption:'After picking two needs: 9 matching features, best matches first, gaps named' },
+        ],
+        stack:['HTML','CSS','JavaScript','WCAG 2.2','NSW Design System'],
+      },
+    },
+    {
+      id:'comp9417-model-benchmark',
+      category:'experience',
+      featured:false,
+      year:'2026',
+      title:'xRFM vs XGBoost vs MLP: Benchmarking on Tabular Data',
+      blurb:'COMP9417 group project testing a new kernel method (xRFM) against XGBoost and neural networks across five datasets. I owned the retail sales regression study.',
+      role:'COMP9417 Machine Learning · UNSW · group project · Apr 2026',
+      tags:['Machine learning','XGBoost','Neural networks','Benchmarking'],
+      accent:'data',
+      cover:'assets/comp9417/rmse.png',
+      coverFit:'contain',
+      locked:false,
+      links:[
+        { label:'View code', href:'https://github.com/manjain15/COMP9417-group-project/tree/main/Retail%20Store%20Dataset' },
+      ],
+      metrics:[
+        {k:'best RMSE (MLP)',v:'15.88'},
+        {k:'XGBoost train time',v:'0.33 s'},
+        {k:'xRFM train time',v:'23.7 s'},
+      ],
+      case:{
+        problem:'Does xRFM, a recent kernel-based model, hold up against XGBoost and MLPs on messy real-world tabular data, both in accuracy and in cost?',
+        approach:[
+          'Built a reproducible pipeline on ~9,600 retail transactions: median imputation and scaling for numeric features, ordinal encoding for categorical ones, fixed seeds.',
+          'Scalability stress test: retrained all three models at 1k, 3k, 5k, 8k and 9.6k samples, recording test RMSE, training time and inference time per sample.',
+          'Robustness test: fed un-imputed data to each model. xRFM fails outright on missing values, while XGBoost handles them natively.',
+        ],
+        result:'At full size the MLP was most accurate (RMSE 15.88), XGBoost close behind (16.87) at a fraction of the cost (0.33 s to train vs 23.7 s for xRFM), and xRFM’s error rose as data grew. For messy business data, XGBoost was the practical choice.',
+        galleryCols:1,
+        gallery:[
+          { src:'assets/comp9417/rmse.png', caption:'Test RMSE as training data grows' },
+          { src:'assets/comp9417/train-time.png', caption:'Training time: xRFM’s dense kernel operations scale badly' },
+        ],
+        stack:['Python','scikit-learn','XGBoost','xRFM','scikit-learn MLP','Jupyter'],
       },
     },
     {
@@ -349,6 +433,9 @@ window.PROJECTS = {
       accent:'client',
       cover:'assets/sim/cover.png',
       coverPosition:'left top',
+      links:[
+        { label:'Earlier version: survival sim', href:'https://github.com/harryng1907/SurvivalSimulation' },
+      ],
       locked:false,
       metrics:[
         {k:'agents',v:'8'},
@@ -365,6 +452,7 @@ window.PROJECTS = {
         result:'Full multi-week seasons with distinct personalities — the quiet, paranoid player and the gossip read very differently.',
         gallery:[ { src:'assets/sim/cover.png', caption:'A week in the house' } ],
         sections:[
+          { title:'Earlier version', body:'Before this I built a smaller survival simulation: agents with moods share dwindling resources, and a local Qwen3 model reasons in <think> tags before returning a structured action. The Big Brother version added relationships, memory and game rules on top.' },
           { title:'What I learned', body:'The 4B model invented housemates who weren’t in the game. Grounding each prompt with the live roster, and validating names in code, is the fix — the same lesson as RAG: give the model the facts instead of trusting its memory.' },
         ],
         stack:['Python','Ollama','Gemma 3','JSON'],
