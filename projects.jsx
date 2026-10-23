@@ -31,14 +31,31 @@ function addUnlocked(id) {
 }
 
 // ---------- Projects ----------
-function Projects({ t, palette, fonts, density }) {
-  const [openId, setOpenId] = React.useState(null);
+const PROJECT_CATEGORIES = [
+  { key:'all', label:'All' },
+  { key:'competition', label:'Competitions' },
+  { key:'experience', label:'Work & study' },
+  { key:'personal', label:'Personal' },
+];
+
+function Projects({ t, palette, fonts, density, mode = 'home' }) {
+  const isAll = mode === 'all';
+  const [filter, setFilter] = React.useState('all');
+  const featured = PROJECT_LIST.filter(p => p.featured);
+  const visible = isAll
+    ? PROJECT_LIST.filter(p => filter === 'all' || p.category === filter)
+    : (featured.length ? featured : PROJECT_LIST);
+  const [openId, setOpenId] = React.useState(() => {
+    const h = (window.location.hash || '').replace('#', '');
+    return PROJECT_LIST.some(p => p.id === h) ? h : null;
+  });
   const [unlockTarget, setUnlockTarget] = React.useState(null);
   const [unlocked, setUnlocked] = React.useState(getUnlocked());
 
   const tryOpen = (p) => {
     if (!p.locked || unlocked.includes(p.id)) {
       setOpenId(p.id);
+      try { history.replaceState(null, '', '#' + p.id); } catch (e) {}
     } else {
       setUnlockTarget(p);
     }
@@ -55,7 +72,7 @@ function Projects({ t, palette, fonts, density }) {
   return (
     <section id="projects" style={{ paddingTop: density.section, paddingBottom: density.section }}>
       <div className="container reveal">
-        <SectionLabel num="02" palette={palette} fonts={fonts}>Selected projects</SectionLabel>
+        <SectionLabel num={isAll ? '—' : '02'} palette={palette} fonts={fonts}>{isAll ? 'All projects' : 'Selected projects'}</SectionLabel>
         <div style={{
           display:'flex', justifyContent:'space-between', alignItems:'baseline',
           marginBottom: 40, gap: 24, flexWrap:'wrap',
@@ -65,27 +82,56 @@ function Projects({ t, palette, fonts, density }) {
             fontSize:'clamp(36px, 5vw, 64px)', lineHeight: 1.05, letterSpacing:'-0.02em',
             margin: 0, maxWidth: 720,
           }}>
-            A small, opinionated collection. <span style={{ color: palette.mute }}>Every one of these I can walk you through end to end.</span>
+            {isAll
+              ? <>Everything I’ve built. <span style={{ color: palette.mute }}>Competition wins, internship work, and the side projects I make for fun.</span></>
+              : <>A small, opinionated collection. <span style={{ color: palette.mute }}>Every one of these I can walk you through end to end.</span></>}
           </h2>
-          <div style={{ fontFamily: fonts.mono, fontSize: 12, color: palette.mute, letterSpacing:'0.1em' }}>
-            {PROJECT_LIST.length} entries · {PROJECT_LIST.filter(p=>p.locked).length} locked
-          </div>
+          {!isAll && (
+            <a href="projects.html" style={{
+              fontFamily: fonts.mono, fontSize: 12, color: palette.accent, letterSpacing:'0.1em',
+              textTransform:'uppercase', borderBottom:`1px solid ${palette.accent}`, paddingBottom: 2,
+            }}>All {PROJECT_LIST.length} projects →</a>
+          )}
         </div>
 
+        {isAll && (
+          <div style={{ display:'flex', flexWrap:'wrap', gap: 8, marginBottom: 32 }}>
+            {PROJECT_CATEGORIES.map(c => {
+              const n = c.key === 'all' ? PROJECT_LIST.length : PROJECT_LIST.filter(p => p.category === c.key).length;
+              const on = filter === c.key;
+              return (
+                <button key={c.key} onClick={() => setFilter(c.key)} style={{
+                  padding:'8px 14px', borderRadius: 999, fontSize: 13.5,
+                  border:`1px solid ${on ? palette.ink : palette.line}`,
+                  background: on ? palette.ink : 'transparent', color: on ? palette.bg : palette.ink,
+                }}>{c.label} <span style={{ opacity: 0.6, marginLeft: 4, fontFamily: fonts.mono, fontSize: 11.5 }}>{n}</span></button>
+              );
+            })}
+          </div>
+        )}
+
         <ProjectLayout
-          layout={t.cardLayout}
-          projects={PROJECT_LIST}
+          layout={isAll ? 'grid' : t.cardLayout}
+          projects={visible}
           unlocked={unlocked}
           onOpen={tryOpen}
           palette={palette} fonts={fonts}
         />
+        {!isAll && (
+          <div style={{ marginTop: 40, display:'flex', justifyContent:'center' }}>
+            <a href="projects.html" style={{
+              padding:'12px 22px', borderRadius: 999, fontSize: 14.5,
+              border:`1px solid ${palette.ink}`, color: palette.ink,
+            }}>See all {PROJECT_LIST.length} projects →</a>
+          </div>
+        )}
       </div>
 
       {openProject && (
         <CaseStudyModal
           project={openProject}
           palette={palette} fonts={fonts}
-          onClose={() => setOpenId(null)}
+          onClose={() => { setOpenId(null); try { history.replaceState(null, '', window.location.pathname); } catch (e) {} }}
         />
       )}
       {unlockTarget && (
@@ -118,6 +164,7 @@ function ProjectLayout({ layout, projects, unlocked, onOpen, palette, fonts }) {
         display:'grid',
         gridTemplateColumns:'repeat(auto-fill, minmax(320px, 1fr))',
         gap: 20,
+        alignItems:'start', rowGap: 44,
       }}>
         {projects.map((p) => (
           <ProjectCard key={p.id} p={p} size="normal" unlocked={unlocked.includes(p.id)}
@@ -248,7 +295,12 @@ function ProjectCard({ p, size = 'normal', unlocked, palette, fonts, onOpen }) {
                      locked={p.locked && !unlocked} size={size}
                      image={p.cover} imagePosition={p.coverPosition} imageFit={p.coverFit} />
       <div style={{ paddingTop: 18 }}>
-        {p.award && <AwardBadge text={p.award} palette={palette} fonts={fonts} />}
+        {(p.award || p.status) && (
+          <div style={{ display:'flex', gap: 6, flexWrap:'wrap' }}>
+            {p.award && <AwardBadge text={p.award} palette={palette} fonts={fonts} />}
+            {p.status && <StatusBadge text={p.status} palette={palette} fonts={fonts} />}
+          </div>
+        )}
         <div style={{
           display:'flex', justifyContent:'space-between', alignItems:'baseline',
           fontFamily: fonts.mono, fontSize: 11, color: palette.mute, letterSpacing:'0.14em',
@@ -368,9 +420,10 @@ function CaseStudyModal({ project: p, palette, fonts, onClose }) {
           }}>{p.title}</h2>
           <p style={{ color: palette.mute, marginTop: 0, fontSize: 16, lineHeight: 1.6, maxWidth: 700 }}>{p.blurb}</p>
 
-          {(p.award || p.role) && (
+          {(p.award || p.role || p.status) && (
             <div style={{ display:'flex', flexWrap:'wrap', gap: 10, marginTop: 14 }}>
               {p.award && <AwardBadge text={p.award} palette={palette} fonts={fonts} />}
+              {p.status && <StatusBadge text={p.status} palette={palette} fonts={fonts} />}
               {p.role && (
                 <span style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing:'0.08em', color: palette.mute, padding:'5px 0' }}>
                   {p.role}
@@ -479,6 +532,19 @@ function CaseBlock({ title, body, image, palette, fonts }) {
         )}
       </div>
     </div>
+  );
+}
+
+function StatusBadge({ text, palette, fonts }) {
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', gap: 6, marginBottom: 10,
+      padding:'5px 10px', borderRadius: 999, border:`1px dashed ${palette.mute}`, color: palette.mute,
+      fontFamily: fonts.mono, fontSize: 11, letterSpacing:'0.06em',
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b' }} />
+      {text}
+    </span>
   );
 }
 

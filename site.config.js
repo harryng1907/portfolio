@@ -5,7 +5,7 @@
 window.SITE = {
 
   identity: {
-    name:     'Huy Nguyen',
+    name:     'Harry Nguyen',
     tagline:  'Data Science · Machine Learning · Analytics',
     location: 'Sydney, Australia',
     email:    'harrynguyen1907@gmail.com',

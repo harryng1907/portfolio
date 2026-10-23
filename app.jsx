@@ -86,13 +86,16 @@ function BackgroundPattern({ kind, palette }) {
 }
 
 // ---------- Top nav ----------
+const IS_PROJECTS_PAGE = window.PAGE === 'projects';
+
 function Nav({ t, palette, onAdminOpen }) {
+  const base = IS_PROJECTS_PAGE ? './' : '';
   const links = [
-    { href: '#about', label: 'About' },
-    { href: '#projects', label: 'Projects' },
-    { href: '#skills', label: 'Skills' },
-    { href: '#experience', label: 'Experience' },
-    { href: '#contact', label: 'Contact' },
+    { href: base + '#about', label: 'About' },
+    { href: 'projects.html', label: 'Projects', active: IS_PROJECTS_PAGE },
+    { href: base + '#skills', label: 'Skills' },
+    { href: base + '#experience', label: 'Experience' },
+    { href: base + '#contact', label: 'Contact' },
   ];
   return (
     <nav style={{
@@ -105,7 +108,7 @@ function Nav({ t, palette, onAdminOpen }) {
         display:'flex', alignItems:'center', justifyContent:'space-between',
         height: 64,
       }}>
-        <a href="#top" className="nav-brand" style={{
+        <a href={IS_PROJECTS_PAGE ? './' : '#top'} className="nav-brand" style={{
           fontFamily: FONTS[t.font].display, fontSize: 20, fontWeight: 600,
           letterSpacing: '-0.01em', display:'flex', alignItems:'center', gap: 10,
         }}>
@@ -119,10 +122,11 @@ function Nav({ t, palette, onAdminOpen }) {
           {links.map(l => (
             <a key={l.href} href={l.href} className="nav-link" style={{
               padding: '8px 12px', fontSize: 13.5,
-              color: palette.mute, transition: 'color 160ms',
+              color: l.active ? palette.ink : palette.mute, transition: 'color 160ms',
+              fontWeight: l.active ? 600 : 400,
             }}
               onMouseEnter={(e) => e.currentTarget.style.color = palette.ink}
-              onMouseLeave={(e) => e.currentTarget.style.color = palette.mute}
+              onMouseLeave={(e) => e.currentTarget.style.color = l.active ? palette.ink : palette.mute}
             >{l.label}</a>
           ))}
           {window.PROJECTS.list.some(p => p.locked) && <button
@@ -194,13 +198,17 @@ function App() {
       <BackgroundPattern kind={t.bgPattern} palette={palette} />
       <Nav t={t} palette={palette} onAdminOpen={() => setAdminOpen(true)} />
 
-      <Hero t={t} palette={palette} fonts={fonts} density={density} />
-      <About t={t} palette={palette} fonts={fonts} density={density} />
-      <Projects t={t} palette={palette} fonts={fonts} density={density} />
-      <Skills t={t} palette={palette} fonts={fonts} density={density} />
-      <Experience t={t} palette={palette} fonts={fonts} density={density} />
-      <Education t={t} palette={palette} fonts={fonts} density={density} />
-      <Contact t={t} palette={palette} fonts={fonts} density={density} />
+      {IS_PROJECTS_PAGE ? (
+        <Projects t={t} palette={palette} fonts={fonts} density={density} mode="all" />
+      ) : (<>
+        <Hero t={t} palette={palette} fonts={fonts} density={density} />
+        <About t={t} palette={palette} fonts={fonts} density={density} />
+        <Projects t={t} palette={palette} fonts={fonts} density={density} />
+        <Skills t={t} palette={palette} fonts={fonts} density={density} />
+        <Experience t={t} palette={palette} fonts={fonts} density={density} />
+        <Education t={t} palette={palette} fonts={fonts} density={density} />
+        <Contact t={t} palette={palette} fonts={fonts} density={density} />
+      </>)}
       <Footer t={t} palette={palette} fonts={fonts} />
 
       {adminOpen && <AdminPanel palette={palette} fonts={fonts} onClose={() => setAdminOpen(false)} />}
